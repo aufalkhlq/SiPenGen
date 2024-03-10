@@ -8,8 +8,8 @@
             <li class="{{ request()->routeIs('user') ? 'active' : '' }}">
                 <a href="{{ route('user') }}"><i data-feather="user"></i> <span>Users</span></a>
             </li>
-            <li class="{{ request()->routeIs('welcome') ? 'active' : '' }}">
-                <a href="{{ route('welcome') }}"><i data-feather="user"></i> <span>Users</span></a>
+            <li class="{{ request()->routeIs('dosen') ? 'active' : '' }}">
+                <a href="{{ route('dosen') }}"><i data-feather="user"></i> <span>Dosen</span></a>
             </li>
         </ul>
     </div>

@@ -27,12 +27,21 @@ Route::group(['middleware' => 'auth'], function(){
     });
     Route::controller('App\Http\Controllers\UserController')->group(function(){
         Route::get('/user', 'index')->name('user');
-        // Route::post('/users/create', 'create')->name('user.create');
+        // Route::post('/user/create', 'create')->name('user.create');
         Route::post('/user', 'store')->name('user.store');
-        // Route::get('/users/{user}', 'show')->name('users.show');
-        // Route::get('/users/{user}/edit', 'edit')->name('users.edit');
-        // Route::put('/users/{user}', 'update')->name('users.update');
-        // Route::delete('/users/{user}', 'destroy')->name('users.destroy');
+        Route::get('/user/{user}', 'show')->name('user.show');
+        Route::get('/user/{user}/edit', 'edit')->name('user.edit');
+        Route::put('/user/{user}', 'update')->name('user.update');
+        Route::delete('/user/{user}', 'delete')->name('user.delete');
+    });
+    // dosen
+    Route::controller('App\Http\Controllers\DosenController')->group(function(){
+        Route::get('/dosen', 'index')->name('dosen');
+        Route::post('/dosen', 'store')->name('dosen.store');
+        Route::get('/dosen/{dosen}', 'show')->name('dosen.show');
+        Route::get('/dosen/{dosen}/edit', 'edit')->name('dosen.edit');
+        Route::put('/dosen/{dosen}', 'update')->name('dosen.update');
+        Route::delete('/dosen/{dosen}', 'delete')->name('dosen.delete');
     });
 });
 

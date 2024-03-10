@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <title>Kanakku - Bootstrap Admin HTML Template</title>
+    <title>Login - Sistem Jadwal</title>
     <link rel="shortcut icon" href="{{ asset('assets/img/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
@@ -51,7 +51,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-lg btn-block btn-primary w-100" type="button"
+                                <button class="btn btn-lg btn-block btn-primary w-100" type="submit"
                                     id="login-button">Login</button>
                             </form>
                         </div>

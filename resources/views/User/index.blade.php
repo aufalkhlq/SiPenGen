@@ -1,6 +1,5 @@
 @extends('components.app')
 @section('content')
-    <script src="https://unpkg.com/sweetalert@2"></script>
     <div class="content container-fluid">
         <div class="page-header">
             <div class="row align-items-center">
@@ -10,7 +9,6 @@
                         <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
                         <li class="breadcrumb-item active">Users</li>
                     </ul>
-
                 </div>
                 <div class="col-auto">
                     <div class="invoices-create-btn">
@@ -20,6 +18,7 @@
                         </a>
                     </div>
                 </div>
+
                 <div class="row mt-4">
                     <div class="col-sm-12">
                         <div class="card card-table">
@@ -28,35 +27,33 @@
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-hover table-center mb-0">
-                                        <thead>
+                                    <table class="table table-hover table-center mb-0 datatable">
+                                        <thead class="thead-light">
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Email</th>
-                                                <th>Status</th>
-                                                <th
-                                                    class="text-right
-                                                    d-print-none">
-                                                    Action</th>
+                                                <th class="text-center">Name</th>
+                                                <th class="text-center">Email</th>
+                                                <th class="text-center">Status</th>
+                                                <th class="text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($users as $user)
                                                 <tr>
                                                     <td>{{ $user->id }}</td>
+                                                    <td>{{ $user->name }}</td>
                                                     <td>{{ $user->email }}</td>
-                                                    <td>{{ $user->status }}</td>
-                                                    <td class="text-right   d-print-none">
-                                                        {{-- <div class="actions">
-                                                            <a href="{{ route('user.edit', $user->id) }}"
-                                                                class="btn btn-sm bg-success-light">
-                                                                <i class="fe fe-pencil"></i> Edit
-                                                            </a>
-                                                            <a href="{{ route('user.delete', $user->id) }}"
-                                                                class="btn btn-sm bg-danger-light">
-                                                                <i class="fe fe-trash"></i> Delete
-                                                            </a>
-                                                        </div> --}}
+                                                    <td class="text-center"><span
+                                                            class="badge badge-pill bg-success-light">Active</span></td>
+                                                    <td class="text-center">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-white text-success me-2 edit-btn"
+                                                            data-id="{{ $user->id }}"><i class="far fa-edit me-1"></i>
+                                                            Edit</button>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-white text-danger me-2 delete-btn"
+                                                            data-id="{{ $user->id }}">
+                                                            <i class="far fa-trash-alt me-1"></i>Delete</button>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -67,6 +64,8 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Add User Modal --}}
                 <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
@@ -91,7 +90,6 @@
                                         <label for="password" class="form-label">Password</label>
                                         <input type="password" class="form-control" id="password" name="password" required>
                                     </div>
-
                                 </form>
                             </div>
                             <div class="modal-footer">
@@ -101,62 +99,206 @@
                         </div>
                     </div>
                 </div>
+                {{--  Edit User Modal --}}
+                <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="edit-user-form">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="edit-name" class="form-label">Nama</label>
+                                        <input type="text" class="form-control" id="edit-name" name="edit_name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="edit-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit-email" name="edit_email">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="edit-password" class="form-label">New Password</label>
+                                        <input type="password" class="form-control" id="edit-password"
+                                            name="edit_password">
+                                    </div>
+                                    <input type="hidden" id="edit-id" name="id">
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="update-user-button">Update
+                                    User</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>
-            <script>
-                $(document).ready(function() {
-                    $('#save-user-button').click(function(e) {
-                        e.preventDefault();
+        </div>
+    </div>
+@endsection
 
-                        // Check if any required fields are empty
-                        if (!$('#email').val() || !$('#password').val()) {
+@push('script')
+    <script>
+        $(document).ready(function() {
+            $('#save-user-button').click(function(e) {
+                e.preventDefault();
+                if (!$('#email').val() || !$('#password').val()) {
+                    swal({
+                        title: "Error!",
+                        text: "Email and password are required.",
+                        icon: "error",
+                        button: "OK",
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('user.store') }}',
+                    data: $('#add-user-form').serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            swal({
+                                title: "Success!",
+                                text: response.success,
+                                icon: "success",
+                                button: "OK",
+                            }).then((value) => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        if (response.responseJSON.errors && response.responseJSON.errors
+                            .email) {
                             swal({
                                 title: "Error!",
-                                text: "Email and password are required.",
+                                text: response.responseJSON.errors.email[0],
                                 icon: "error",
                                 button: "OK",
                             });
-                            return;
+                        } else if (response.responseJSON.errors) {
+                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                            swal({
+                                title: "Error!",
+                                text: response.responseJSON.errors[firstErrorKey][0],
+                                icon: "error",
+                                button: "OK",
+                            });
                         }
-
-                        $.ajax({
-                            type: 'POST',
-                            url: '{{ route('user.store') }}',
-                            data: $('#add-user-form').serialize(),
-                            success: function(response) {
-                                if (response.success) {
-                                    swal({
-                                        title: "Success!",
-                                        text: response.success,
-                                        icon: "success",
-                                        button: "OK",
-                                    }).then((value) => {
-                                        location.reload();
-                                    });
-                                }
-                            },
-                            error: function(response) {
-                                if (response.responseJSON.errors && response.responseJSON.errors
-                                    .email) {
-                                    swal({
-                                        title: "Error!",
-                                        text: response.responseJSON.errors.email[0],
-                                        icon: "error",
-                                        button: "OK",
-                                    });
-                                } else if (response.responseJSON.errors) {
-                                    // If there are other errors, show the first one
-                                    const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                                    swal({
-                                        title: "Error!",
-                                        text: response.responseJSON.errors[firstErrorKey][0],
-                                        icon: "error",
-                                        button: "OK",
-                                    });
-                                }
-                            }
-                        });
-                    });
+                    }
                 });
-            </script>
-        @endsection
+            });
+
+            $('.edit-btn').click(function() {
+                var userId = $(this).data('id');
+                $.ajax({
+                    type: 'GET',
+                    url: '/user/' + userId,
+                    success: function(response) {
+                        // Populate the form fields in the edit user modal
+                        $('#edit-name').val(response.name);
+                        $('#edit-email').val(response.email);
+                        $('#edit-id').val(response.id);
+                        $('#edit-password').val(response.password);
+                        $('#editUserModal').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle AJAX error
+                        console.error('Error fetching user data: ' + error);
+                    }
+                });
+            });
+            // user update
+            $('#update-user-button').click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'PUT',
+                    url: '/user/' + $('#edit-id').val(),
+                    data: $('#edit-user-form').serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            swal({
+                                title: "Success!",
+                                text: response.success,
+                                icon: "success",
+                                button: "OK",
+                            }).then((value) => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        if (response.responseJSON.errors && response.responseJSON.errors
+                            .email) {
+                            swal({
+                                title: "Error!",
+                                text: response.responseJSON.errors.email[0],
+                                icon: "error",
+                                button: "OK",
+                            });
+                        } else if (response.responseJSON.errors) {
+                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                            swal({
+                                title: "Error!",
+                                text: response.responseJSON.errors[firstErrorKey][0],
+                                icon: "error",
+                                button: "OK",
+                            });
+                        }
+                    }
+                });
+            });
+
+            // add alert when klik button delete
+            $('.delete-btn').click(function(e) {
+                e.preventDefault();
+                var userId = $(this).data('id');
+                swal({
+                        title: "Are you sure?",
+                        text: "Once deleted, you will not be able to recover this user!",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            $.ajax({
+                                type: 'DELETE',
+                                url: '/user/' + userId,
+                                data: {
+                                    '_token': $('input[name=_token]').val(),
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        swal({
+                                            title: "Deleted!",
+                                            text: response.success,
+                                            icon: "success",
+                                            button: "OK",
+                                        }).then((value) => {
+                                            location.reload();
+                                        });
+                                    }
+                                },
+                                error: function(response) {
+                                    if (response.responseJSON.error) {
+                                        swal({
+                                            title: "Error!",
+                                            text: response.responseJSON.error,
+                                            icon: "error",
+                                            button: "OK",
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+            });
+        });
+    </script>
+@endpush
