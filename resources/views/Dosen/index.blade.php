@@ -12,10 +12,10 @@
                 </div>
                 <div class="col-auto">
                     <div class="invoices-create-btn">
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#addDosenModal"
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#addDosenModal"
                             class="btn save-invoice-btn">
                             Add Dosen
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -39,23 +39,23 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($dosens as $dosen)
-                                            <tr>
-                                                <td>{{$dosen->nama_dosen}}</td>
-                                                <td>{{$dosen->nip}}</td>
-                                                <td>{{$dosen->prodi}}</td>
-                                                <td class="text-center"><span
-                                                        class="badge badge-pill bg-success-light">Active</span></td>
-                                                <td class="text-center">
-                                                    <button type="button"
-                                                        class="btn btn-sm btn-white text-success me-2 edit-btn"><i
-                                                            class="far fa-edit me-1"></i>
-                                                        Edit</button>
-                                                    <button type="button"
-                                                        class="btn btn-sm btn-white text-danger me-2 delete-btn">
-                                                        <i class="far fa-trash-alt me-1"></i>Delete</button>
-                                                </td>
-                                            </tr>
-
+                                                <tr>
+                                                    <td>{{ $dosen->nama_dosen }}</td>
+                                                    <td>{{ $dosen->nip }}</td>
+                                                    <td>{{ $dosen->prodi }}</td>
+                                                    <td class="text-center"><span
+                                                            class="badge badge-pill bg-success-light">Active</span></td>
+                                                    <td class="text-center">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-white text-success me-2 edit-btn"
+                                                            data-id="{{ $dosen->id }}"><i class="far fa-edit me-1"></i>
+                                                            Edit</button>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-white text-danger me-2 delete-btn"
+                                                            data-id="{{ $dosen->id }}">
+                                                            <i class="far fa-trash-alt me-1"></i>Delete</button>
+                                                    </td>
+                                                </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -92,7 +92,8 @@
                                         <select class="form-select" id="prodi" name="prodi" required>
                                             <option selected disabled>Select Prodi</option>
                                             <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
-                                            <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer</option>
+                                            <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer
+                                            </option>
                                             <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                                         </select>
                                     </div>
@@ -100,44 +101,50 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" id="save-dosen-button">Save User</button>
+                                <button type="button" class="btn btn-primary" id="save-dosen-button">Save dosen</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                {{--  Edit User Modal --}}
-                <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel"
+                {{--  Edit Dosen Modal --}}
+                <div class="modal fade" id="editDosenModal" tabindex="-1" aria-labelledby="editDosenModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                <h5 class="modal-title" id="editDosenModalLabel">Edit Dosen</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="edit-user-form">
+                                <form id="edit-dosen-form">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="edit-name" class="form-label">Nama</label>
-                                        <input type="text" class="form-control" id="edit-name" name="edit_name">
+                                        <label for="edit-nama_dosen" class="form-label">Nama Dosen</label>
+                                        <input type="text" class="form-control" id="edit-nama_dosen"
+                                            name="edit-nama_dosen" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="edit-email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit-email" name="edit_email">
+                                        <label for="edit-nip" class="form-label">NIP</label>
+                                        <input type="number" class="form-control" id="edit-nip" name="edit-nip"
+                                            required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="edit-password" class="form-label">New Password</label>
-                                        <input type="password" class="form-control" id="edit-password"
-                                            name="edit_password">
+                                        <label for="edit-prodi" class="form-label">Prodi</label>
+                                        <select class="form-select" id="edit-prodi" name="edit-prodi" required>
+                                            <option selected disabled>Select Prodi</option>
+                                            <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
+                                            <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer
+                                            </option>
+                                            <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                                     </div>
                                     <input type="hidden" id="edit-id" name="id">
                                 </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" id="update-user-button">Update
-                                    User</button>
+                                <button type="button" class="btn btn-primary" id="update-dosen-button">Update
+                                    Dosen</button>
                             </div>
                         </div>
                     </div>
@@ -161,11 +168,11 @@
                     });
                     return;
                 }
-                if (!$('#prodi').val()){
+                if (!$('#prodi').val()) {
                     swal({
                         title: "Error!",
-                        text:"Silahkan Pilih Salah Satu Prodi.",
-                        icon:"error",
+                        text: "Silahkan Pilih Salah Satu Prodi.",
+                        icon: "error",
                         button: "OK",
                     })
                 }
@@ -187,6 +194,108 @@
                         }
                     },
                 });
+            });
+            // edit dosen
+            $('.edit-btn').click(function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                $.ajax({
+                    type: 'GET',
+                    url: '/dosen/' + id + '/edit',
+                    success: function(response) {
+                        $('#edit-nama_dosen').val(response.nama_dosen);
+                        $('#edit-nip').val(response.nip);
+                        $('#edit-prodi').val(response.prodi);
+                        $('#edit-id').val(response.id);
+                        $('#editDosenModal').modal('show');
+                    }
+                });
+            });
+            // update dosen
+            $('#update-dosen-button').click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'PUT',
+                    url: '/dosen/' + $('#edit-id').val(),
+                    data: $('#edit-dosen-form').serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            swal({
+                                title: "Success!",
+                                text: response.success,
+                                icon: "success",
+                                button: "OK",
+                            }).then((value) => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        if (response.responseJSON.errors && response.responseJSON.errors
+                            .email) {
+                            swal({
+                                title: "Error!",
+                                text: response.responseJSON.errors.email[0],
+                                icon: "error",
+                                button: "OK",
+                            });
+                        } else if (response.responseJSON.errors) {
+                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                            swal({
+                                title: "Error!",
+                                text: response.responseJSON.errors[firstErrorKey][0],
+                                icon: "error",
+                                button: "OK",
+                            });
+                        }
+                    }
+                });
+            });
+
+            // delete dosen
+            $('.delete-btn').click(function(e) {
+                e.preventDefault();
+                var Id = $(this).data('id');
+                swal({
+                        title: "Are you sure?",
+                        text: "Once deleted, you will not be able to recover this user!",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    })
+                    .then((willDelete) => {
+                        if (willDelete) {
+                            $.ajax({
+                                type: 'DELETE',
+                                url: '/dosen/' + Id,
+                                data: {
+                                    '_token': $('input[name=_token]').val(),
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        swal({
+                                            title: "Deleted!",
+                                            text: response.success,
+                                            icon: "success",
+                                            button: "OK",
+                                        }).then((value) => {
+                                            location.reload();
+                                        });
+                                    }
+                                },
+                                error: function(response) {
+                                    if (response.responseJSON.error) {
+                                        swal({
+                                            title: "Error!",
+                                            text: response.responseJSON.error,
+                                            icon: "error",
+                                            button: "OK",
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
             });
         });
     </script>

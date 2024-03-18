@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dosen;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class DosenController extends Controller
 {
@@ -53,7 +54,8 @@ class DosenController extends Controller
      */
     public function show(Dosen $dosen)
     {
-        //
+        $dosen = Dosen::find($dosen);
+        return response()->json($dosen);
     }
 
     /**
@@ -61,22 +63,50 @@ class DosenController extends Controller
      */
     public function edit(Dosen $dosen)
     {
-        //
+        return response()->json($dosen);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Dosen $dosen)
+    public function update(Request $request, $id)
     {
-        //
+        $dosen = Dosen::find($id);
+
+        $request->validate([
+            'edit-nama_dosen' => 'required',
+            'edit-nip' => 'required|numeric',
+            'edit-prodi' => 'required',
+        ]);
+
+        $dosen->nama_dosen = $request->input('edit-nama_dosen');
+        $dosen->nip = $request->input('edit-nip');
+        $dosen->prodi = $request->input('edit-prodi');
+
+        $dosen->save();
+
+        if ($dosen) {
+            return response()->json([
+                'success' => 'dosen edited successfully',
+                'redirect' => route('dosen'),
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'Failed to edit dosen. Please try again.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Dosen $dosen)
+    public function delete($id)
     {
-        //
+        $dosen = Dosen::find($id);
+        $dosen->delete();
+        return response()->json([
+            'success' => 'Dosen deleted successfully',
+            'redirect' => route('dosen'),
+        ]);
     }
 }

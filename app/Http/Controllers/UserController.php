@@ -91,19 +91,21 @@ class UserController extends Controller
         }
 
         $request->validate([
-            'edit_name' => 'required|max:255',
-            'edit_email' => 'required|email|unique:users,email,' . $id,
+            'edit-name' => 'required|max:255',
+            'edit-email' => 'required|email|unique:users,email,' . $id,
         ]);
 
-        $user->name = $request->input('edit_name');
-        $user->email = $request->input('edit_email');
+        $user->name = $request->input('edit-name');
+        $user->email = $request->input('edit-email');
 
         // Only update the password if a new one is provided
-        if ($request->input('edit_password')) {
+        if ($request->input('edit-password')) {
             $request->validate([
-                'edit_password' => 'required|min:8',
+                'edit-password' => 'required|min:8',
             ]);
-            $user->password = bcrypt($request->input('edit_password'));
+            $user->password = bcrypt($request->input('edit-password'));
+        } else{
+            // when password its > 8
         }
 
         $user->save();
@@ -113,7 +115,8 @@ class UserController extends Controller
                 'success' => 'User edited successfully',
                 'redirect' => route('user'),
             ]);
-        } else {
+        }
+        else {
             return response()->json([
                 'error' => 'Failed to edit user. Please try again.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);

@@ -11,6 +11,9 @@
             <li class="{{ request()->routeIs('dosen') ? 'active' : '' }}">
                 <a href="{{ route('dosen') }}"><i data-feather="user"></i> <span>Dosen</span></a>
             </li>
+            <li class="{{ request()->routeIs('kelas') ? 'active' : '' }}">
+                <a href="{{ route('kelas') }}"><i data-feather="user"></i> <span>Kelas</span></a>
+            </li>
         </ul>
     </div>
 </div>

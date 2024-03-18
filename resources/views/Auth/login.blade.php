@@ -27,7 +27,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <label class="form-control-label">Email Address</label>
-                                    <input type="email" class="form-control" name="email" >
+                                    <input type="email" class="form-control" name="email">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-control-label">Password</label>
@@ -64,6 +64,28 @@
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/js/feather.min.js') }}"></script>
     <script src="{{ asset('assets/js/script.js') }}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+
+    <script type="text/javascript">
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+    </script>
     <script>
         $(document).ready(function() {
             $('#login-button').click(function(e) {
@@ -84,24 +106,15 @@
                                     window.location.href = response.redirect;
                                 });
                         } else if (response.error) {
-                            swal({
-                                title: "Error!",
-                                text: response.error,
-                                icon: "error",
-                                button: "OK",
-                            });
+                            toastr.error(response.error);
                         }
                     },
                     error: function(xhr, status, error) {
                         // Handle validation errors if needed
                         var jsonResponse = JSON.parse(xhr.responseText);
-                        var errorMessage = jsonResponse.error || 'Username or password cannot be empty!';
-                        swal({
-                            title: "Error!",
-                            text: errorMessage,
-                            icon: "error",
-                            button: "OK",
-                        });
+                        var errorMessage = jsonResponse.error ||
+                            'Username or password cannot be empty!';
+                        toastr.error(errorMessage);
                     }
                 });
             });

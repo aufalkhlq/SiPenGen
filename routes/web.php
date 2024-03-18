@@ -27,7 +27,6 @@ Route::group(['middleware' => 'auth'], function(){
     });
     Route::controller('App\Http\Controllers\UserController')->group(function(){
         Route::get('/user', 'index')->name('user');
-        // Route::post('/user/create', 'create')->name('user.create');
         Route::post('/user', 'store')->name('user.store');
         Route::get('/user/{user}', 'show')->name('user.show');
         Route::get('/user/{user}/edit', 'edit')->name('user.edit');
@@ -43,10 +42,17 @@ Route::group(['middleware' => 'auth'], function(){
         Route::put('/dosen/{dosen}', 'update')->name('dosen.update');
         Route::delete('/dosen/{dosen}', 'delete')->name('dosen.delete');
     });
+    // kelas
+    Route::controller('App\Http\Controllers\KelasController')->group(function(){
+        Route::get('/kelas', 'index')->name('kelas');
+        Route::post('/kelas', 'store')->name('kelas.store');
+        Route::get('/kelas/{kelas}', 'show')->name('kelas.show');
+        Route::get('/kelas/{kelas}/edit', 'edit')->name('kelas.edit');
+        Route::put('/kelas/{kelas}', 'update')->name('kelas.update');
+        Route::delete('/kelas/{kelas}', 'delete')->name('kelas.delete');
+    });
 });
 
-
-// User
 
 
 Route::get('/users', function (){

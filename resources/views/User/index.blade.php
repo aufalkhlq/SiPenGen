@@ -12,10 +12,10 @@
                 </div>
                 <div class="col-auto">
                     <div class="invoices-create-btn">
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#addUserModal"
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#addUserModal"
                             class="btn save-invoice-btn">
                             Add User
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -114,16 +114,16 @@
                                     @csrf
                                     <div class="mb-3">
                                         <label for="edit-name" class="form-label">Nama</label>
-                                        <input type="text" class="form-control" id="edit-name" name="edit_name">
+                                        <input type="text" class="form-control" id="edit-name" name="edit-name">
                                     </div>
                                     <div class="mb-3">
                                         <label for="edit-email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit-email" name="edit_email">
+                                        <input type="email" class="form-control" id="edit-email" name="edit-email">
                                     </div>
                                     <div class="mb-3">
                                         <label for="edit-password" class="form-label">New Password</label>
                                         <input type="password" class="form-control" id="edit-password"
-                                            name="edit_password">
+                                            name="edit-password" placeholder="Kosongkan Jika tidak Merubah Password">
                                     </div>
                                     <input type="hidden" id="edit-id" name="id">
                                 </form>
