@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <script src="https://unpkg.com/sweetalert@2"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
@@ -94,6 +95,9 @@
                     type: 'POST',
                     url: '{{ route('login.post') }}',
                     data: $('#login-form').serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
                         if (response.success) {
                             swal({

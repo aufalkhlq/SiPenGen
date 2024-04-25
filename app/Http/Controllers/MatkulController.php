@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kelas;
+use App\Models\Matkul;
 use Illuminate\Http\Request;
 
-class KelasController extends Controller
+class MatkulController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $kelas = Kelas::all();
-        return view('kelas.index', compact('kelas'));
+        $matkuls = Matkul::all();
+        return view('matkul.index' , compact('matkuls'));
     }
 
     /**
@@ -30,19 +30,16 @@ class KelasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_kelas' => 'required',
-            'tahun_angkatan' => 'required|numeric',
-            'prodi' => 'required',
+            'kode_matkul' => 'required',
+            'nama_matkul' => 'required',
+            'sks' => 'required'
         ]);
-        //create new kelas
-        $kelas = Kelas::create([
-            'nama_kelas' => $request->nama_kelas,
-            'tahun_angkatan' => $request->tahun_angkatan,
-            'prodi' => $request->prodi,
-        ]);
+
+        Matkul::create($request->all());
+
         return response()->json([
-            'success' => 'kelas created successfully',
-            'redirect' => route('kelas'),
+            'success' => 'Mata Kuliah created successfully',
+            'redirect' => route('matkul'),
         ]);
 
     }
@@ -50,7 +47,7 @@ class KelasController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Kelas $kelas)
+    public function show(Matkul $matkul)
     {
         //
     }
@@ -58,7 +55,7 @@ class KelasController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Kelas $kelas)
+    public function edit(Matkul $matkul)
     {
         //
     }
@@ -66,7 +63,7 @@ class KelasController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Kelas $kelas)
+    public function update(Request $request, Matkul $matkul)
     {
         //
     }
@@ -74,7 +71,7 @@ class KelasController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Kelas $kelas)
+    public function destroy(Matkul $matkul)
     {
         //
     }

@@ -4,17 +4,17 @@
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
-                <h3 class="page-title">Kelas</h3>
+                <h3 class="page-title">Ruangan</h3>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Kelas</li>
+                    <li class="breadcrumb-item active">Ruangan</li>
                 </ul>
             </div>
             <div class="col-auto">
                 <div class="invoices-create-btn">
-                    <button type="button" data-bs-toggle="modal" data-bs-target="#addkelasModal"
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#addruanganModal"
                         class="btn save-invoice-btn">
-                        Add Kelas
+                        Add Ruangan
                 </button>
                 </div>
             </div>
@@ -23,28 +23,27 @@
                 <div class="col-sm-12">
                     <div class="card card-table">
                         <div class="card-header">
-                            <h4 class="card-title">List of kelas</h4>
+                            <h4 class="card-title">List of Ruangan</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover table-center mb-0 datatable">
                                     <thead class="thead-light">
                                         <tr>
-                                            <th class="text-center">Nama Kelas</th>
-                                            <th class="text-center">Tahun Angkatan</th>
-                                            <th class="text-center">Prodi</th>
-                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Nama Ruangan</th>
+                                            <th class="text-center">Kode Ruangan</th>
+                                            <th class="text-center">Lantai</th>
+                                            <th class="text-center">Kapasitas</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($kelas as $item)
+                                        @foreach ($ruangans as $ruangan)
                                         <tr>
-                                            <td>{{$item->nama_kelas}}</td>
-                                            <td>{{$item->tahun_angkatan}} </td>
-                                            <td>{{$item->prodi}}</td>
-                                            <td class="text-center"><span
-                                                    class="badge badge-pill bg-success-light">Active</span></td>
+                                            <td>{{$ruangan->nama_ruangan}}</td>
+                                            <td>{{$ruangan->kode_ruangan}} </td>
+                                            <td>{{$ruangan->lantai}} </td>
+                                            <td>{{$ruangan->kapasitas}}</td>
                                             <td class="text-center">
                                                 <button type="button"
                                                     class="btn btn-sm btn-white text-success me-2 edit-btn"
@@ -56,8 +55,9 @@
                                                  >
                                                     <i class="far fa-trash-alt me-1"></i>Delete</button>
                                             </td>
-                                            @endforeach
                                         </tr>
+
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -66,83 +66,83 @@
                 </div>
             </div>
 
-            {{-- Add kelas Modal --}}
-            <div class="modal fade" id="addkelasModal" tabindex="-1" aria-labelledby="addkelasModalLabel"
+            {{-- Add ruangan Modal --}}
+            <div class="modal fade" id="addruanganModal" tabindex="-1" aria-labelledby="addruanganModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="addkelasModalLabel">Add Kelas</h5>
+                            <h5 class="modal-title" id="addruanganModalLabel">Add ruangan</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="add-kelas-form">
+                            <form id="add-ruangan-form">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="nama_kelas" class="form-label">Nama Kelas</label>
-                                    <input type="text" class="form-control" id="nama_kelas" name="nama_kelas"
+                                    <label for="nama_ruangan" class="form-label">Nama Ruangan</label>
+                                    <input type="text" class="form-control" id="nama_ruangan" name="nama_ruangan"
                                         required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="tahun_angkatan" class="form-label">Tahun Angkatan</label>
-                                    <input type="number" class="form-control" id="tahun_angkatan" name="tahun_angkatan" required>
+                                    <label for="kode_ruangan" class="form-label">Kode Ruangan</label>
+                                    <input type="text" class="form-control" id="kode_ruangan" name="kode_ruangan" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="prodi" class="form-label">Prodi</label>
-                                    <select class="form-select" id="prodi" name="prodi" required>
-                                        <option selected disabled>Select Prodi</option>
-                                        <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
-                                        <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer</option>
-                                        <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
-                                    </select>
+                                    <label for="lantai" class="form-label">Lantai</label>
+                                    <input type="number" class="form-control" id="lantai" name="lantai" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="kapasitas" class="form-label">Kapasitas</label>
+                                    <input type="number" class="form-control" id="kapasitas" name="kapasitas" required>
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="save-kelas-button">Save</button>
+                            <button type="button" class="btn btn-primary" id="save-ruangan-button">Save</button>
                         </div>
                     </div>
                 </div>
             </div>
-            {{--  Edit kelas Modal --}}
-            <div class="modal fade" id="editkelasModal" tabindex="-1" aria-labelledby="editkelasModalLabel"
+            {{--  Edit ruangan Modal --}}
+            <div class="modal fade" id="editruanganModal" tabindex="-1" aria-labelledby="editruanganModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editkelasModalLabel">Edit kelas</h5>
+                            <h5 class="modal-title" id="editruanganModalLabel">Edit ruangan</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="edit-kelas-form">
+                            <form id="edit-ruangan-form">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="edit-nama_kelas" class="form-label">Nama kelas</label>
-                                    <input type="text" class="form-control" id="edit-nama_kelas" name="edit-nama_kelas"
+                                    <label for="edit-nama_ruangan" class="form-label">Nama Ruangan</label>
+                                    <input type="text" class="form-control" id="edit-nama_ruangan" name="edit-nama_ruangan"
                                         required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="edit-tahun" class="form-label">Tahun Angkatan</label>
-                                    <input type="number" class="form-control" id="edit-tahun" name="edit-tahun" required>
+                                    <label for="edit-kode_ruangan" class="form-label">Kode Ruangan</label>
+                                    <input type="text" class="form-control" id="edit-kode_ruangan" name="edit-kode_ruangan" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="edit-prodi" class="form-label">Prodi</label>
-                                    <select class="form-select" id="edit-prodi" name="edit-prodi" required>
-                                        <option selected disabled>Select Prodi</option>
-                                        <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
-                                        <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer</option>
-                                        <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
+                                    <label for="edit-lantai" class="form-label">Lantai</label>
+                                    <input type="number" class="form-control" id="edit-lantai" name="edit-lantai" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="edit-kapasitas" class="form-label">Kapasitas</label>
+                                    <input type="number" class="form-control" id="edit-kapasitas" name="edit-kapasitas" required>
+                                </div>
+
                                 <input type="hidden" id="edit-id" name="id">
                             </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="update-kelas-button">Update
-                                kelas</button>
+                            <button type="button" class="btn btn-primary" id="update-ruangan-button">Update
+                                </button>
                         </div>
                     </div>
                 </div>
@@ -155,30 +155,13 @@
 @push('script')
     <script>
         $(document).ready(function() {
-            $('#save-kelas-button').click(function(e) {
+            $('#save-ruangan-button').click(function(e) {
                 e.preventDefault();
-                if (!$('#nama_kelas').val() || !$('#tahun_angkatan').val()) {
-                    swal({
-                        title: "Error!",
-                        text: "Nama kelas and NIP are required.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                    return;
-                }
-                if (!$('#prodi').val()) {
-                    swal({
-                        title: "Error!",
-                        text: "Silahkan Pilih Salah Satu Prodi.",
-                        icon: "error",
-                        button: "OK",
-                    })
-                }
 
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route('kelas.store') }}',
-                    data: $('#add-kelas-form').serialize(),
+                    url: '{{ route('ruangan.store') }}',
+                    data: $('#add-ruangan-form').serialize(),
                     success: function(response) {
                         if (response.success) {
                             swal({
@@ -196,4 +179,3 @@
         });
   </script>
 @endpush
-

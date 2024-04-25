@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/datatables/datatables.min.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite('resources/js/app.js')
     @stack('style')
 </head>
 

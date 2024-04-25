@@ -51,6 +51,57 @@ Route::group(['middleware' => 'auth'], function(){
         Route::put('/kelas/{kelas}', 'update')->name('kelas.update');
         Route::delete('/kelas/{kelas}', 'delete')->name('kelas.delete');
     });
+
+    // ruangan
+    Route::controller('App\Http\Controllers\RuanganController')->group(function(){
+        Route::get('/ruangan', 'index')->name('ruangan');
+        Route::post('/ruangan', 'store')->name('ruangan.store');
+        Route::get('/ruangan/{ruangan}', 'show')->name('ruangan.show');
+        Route::get('/ruangan/{ruangan}/edit', 'edit')->name('ruangan.edit');
+        Route::put('/ruangan/{ruangan}', 'update')->name('ruangan.update');
+        Route::delete('/ruangan/{ruangan}', 'delete')->name('ruangan.delete');
+    });
+
+    // matkul
+    Route::controller('App\Http\Controllers\MatkulController')->group(function(){
+        Route::get('/matkul', 'index')->name('matkul');
+        Route::post('/matkul', 'store')->name('matkul.store');
+        Route::get('/matkul/{matkul}', 'show')->name('matkul.show');
+        Route::get('/matkul/{matkul}/edit', 'edit')->name('matkul.edit');
+        Route::put('/matkul/{matkul}', 'update')->name('matkul.update');
+        Route::delete('/matkul/{matkul}', 'delete')->name('matkul.delete');
+    });
+
+    //jam
+    Route::controller('App\Http\Controllers\JamController')->group(function(){
+        Route::get('/jam', 'index')->name('jam');
+        Route::post('/jam', 'store')->name('jam.store');
+        Route::get('/jam/{jam}', 'show')->name('jam.show');
+        Route::get('/jam/{jam}/edit', 'edit')->name('jam.edit');
+        Route::put('/jam/{jam}', 'update')->name('jam.update');
+        Route::delete('/jam/{jam}', 'delete')->name('jam.delete');
+    });
+
+    //hari
+    Route::controller('App\Http\Controllers\HariController')->group(function(){
+        Route::get('/hari', 'index')->name('hari');
+        Route::post('/hari', 'store')->name('hari.store');
+        Route::get('/hari/{hari}', 'show')->name('hari.show');
+        Route::get('/hari/{hari}/edit', 'edit')->name('hari.edit');
+        Route::put('/hari/{hari}', 'update')->name('hari.update');
+        Route::delete('/hari/{hari}', 'delete')->name('hari.delete');
+    });
+
+    // jadwal
+    Route::controller('App\Http\Controllers\JadwalController')->group(function(){
+        Route::get('/jadwal', 'index')->name('jadwal');
+        Route::post('/jadwal', 'store')->name('jadwal.store');
+        Route::get('/jadwal/{jadwal}', 'show')->name('jadwal.show');
+        Route::get('/jadwal/{jadwal}/edit', 'edit')->name('jadwal.edit');
+        Route::put('/jadwal/{jadwal}', 'update')->name('jadwal.update');
+        Route::delete('/jadwal/{jadwal}', 'delete')->name('jadwal.delete');
+    });
+
 });
 
 
