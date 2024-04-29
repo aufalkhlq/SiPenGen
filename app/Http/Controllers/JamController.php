@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\jam;
+use Illuminate\Http\Request;
 use App\Http\Requests\StorejamRequest;
 use App\Http\Requests\UpdatejamRequest;
 
@@ -13,7 +14,9 @@ class JamController extends Controller
      */
     public function index()
     {
-        return view('waktu.jam');
+        $jams = Jam::all();
+        return view('waktu.jam', compact('jams'));
+        // return view('waktu.jam');
     }
 
     /**
@@ -27,9 +30,23 @@ class JamController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorejamRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'jam' => 'required',
+            'waktu' => 'required',
+ 
+        ]);
+        //create new ruangan
+        $jam = jam::create([
+            'jam' => $request->jam,
+            'waktu' => $request->waktu,
+        ]);
+
+        return response()->json([
+            'success' => 'Jam created successfully',
+            'redirect' => route('jam'),
+        ]);
     }
 
     /**
