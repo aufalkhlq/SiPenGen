@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/welcome', function () {
+    return view('welcome');
+});
 // Auth
 Route::controller('App\Http\Controllers\AuthController')->group(function(){
     Route::get('/login', 'index')->name('login');
@@ -96,10 +99,32 @@ Route::group(['middleware' => 'auth'], function(){
     Route::controller('App\Http\Controllers\JadwalController')->group(function(){
         Route::get('/jadwal', 'index')->name('jadwal');
         Route::post('/jadwal', 'store')->name('jadwal.store');
+        Route::post('/generate', 'generateSchedule')->name('jadwal.generate');
         Route::get('/jadwal/{jadwal}', 'show')->name('jadwal.show');
         Route::get('/jadwal/{jadwal}/edit', 'edit')->name('jadwal.edit');
         Route::put('/jadwal/{jadwal}', 'update')->name('jadwal.update');
         Route::delete('/jadwal/{jadwal}', 'delete')->name('jadwal.delete');
+        Route::get('/jadwal/status', 'status')->name('jadwal.status');
+    });
+
+    // genetik
+    // Route::controller('App\Http\Controllers\Genetik\GenetikController')->group(function(){
+    //     Route::get('/genetik', 'index')->name('genetik');
+    //     Route::post('/genetik', 'generateSchedule')->name('genetik.generate');
+    //     Route::get('/genetik/{genetik}', 'show')->name('genetik.show');
+    //     Route::get('/genetik/{genetik}/edit', 'edit')->name('genetik.edit');
+    //     Route::put('/genetik/{genetik}', 'update')->name('genetik.update');
+    //     Route::delete('/genetik/{genetik}', 'delete')->name('genetik.delete');
+    // });
+
+    // pengampu
+    Route::controller('App\Http\Controllers\PengampuController')->group(function(){
+        Route::get('/pengampu', 'index')->name('pengampu');
+        Route::post('/pengampu', 'store')->name('pengampu.store');
+        Route::get('/pengampu/{pengampu}', 'show')->name('pengampu.show');
+        Route::get('/pengampu/{pengampu}/edit', 'edit')->name('pengampu.edit');
+        Route::put('/pengampu/{pengampu}', 'update')->name('pengampu.update');
+        Route::delete('/pengampu/{pengampu}', 'delete')->name('pengampu.delete');
     });
 
 });

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Kelas;
 
 class KelasSeeder extends Seeder
 {
@@ -12,6 +12,14 @@ class KelasSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $kelasNames = ['IK1A', 'IK1B', 'IK1C'];
+
+        foreach ($kelasNames as $name) {
+            Kelas::create([
+                'nama_kelas' => $name,
+                'tahun_angkatan' => '2022',
+                'prodi' => 'Teknik Informatika',
+            ]);
+        }
     }
 }

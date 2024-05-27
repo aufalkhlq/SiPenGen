@@ -15,4 +15,14 @@ class Matkul extends Model
         'nama_matkul',
         'sks'
     ];
+
+    public function pengampu()
+    {
+        return $this->hasMany(Pengampu::class);
+    }
+
+    public function jadwal()
+    {
+        return $this->hasMany(Jadwal::class);
+    }
 }

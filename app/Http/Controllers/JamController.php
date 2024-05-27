@@ -35,9 +35,9 @@ class JamController extends Controller
         $request->validate([
             'jam' => 'required',
             'waktu' => 'required',
- 
+
         ]);
-        //create new ruangan
+        //create new jam
         $jam = jam::create([
             'jam' => $request->jam,
             'waktu' => $request->waktu,

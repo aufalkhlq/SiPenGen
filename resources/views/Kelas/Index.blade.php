@@ -158,7 +158,7 @@
             $('#save-kelas-button').click(function(e) {
                 e.preventDefault();
                 if (!$('#nama_kelas').val() || !$('#tahun_angkatan').val()) {
-                    swal({
+                    swal.fire({
                         title: "Error!",
                         text: "Nama kelas and NIP are required.",
                         icon: "error",
@@ -167,7 +167,7 @@
                     return;
                 }
                 if (!$('#prodi').val()) {
-                    swal({
+                    swal.fire({
                         title: "Error!",
                         text: "Silahkan Pilih Salah Satu Prodi.",
                         icon: "error",
@@ -181,7 +181,7 @@
                     data: $('#add-kelas-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",

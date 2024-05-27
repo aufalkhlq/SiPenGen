@@ -147,7 +147,7 @@
             $('#save-user-button').click(function(e) {
                 e.preventDefault();
                 if (!$('#email').val() || !$('#password').val()) {
-                    swal({
+                    swal.fire({
                         title: "Error!",
                         text: "Email and password are required.",
                         icon: "error",
@@ -162,7 +162,7 @@
                     data: $('#add-user-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",
@@ -175,7 +175,7 @@
                     error: function(response) {
                         if (response.responseJSON.errors && response.responseJSON.errors
                             .email) {
-                            swal({
+                            swal.fire({
                                 title: "Error!",
                                 text: response.responseJSON.errors.email[0],
                                 icon: "error",
@@ -183,7 +183,7 @@
                             });
                         } else if (response.responseJSON.errors) {
                             const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            swal({
+                            swal.fire({
                                 title: "Error!",
                                 text: response.responseJSON.errors[firstErrorKey][0],
                                 icon: "error",
@@ -222,7 +222,7 @@
                     data: $('#edit-user-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",
@@ -235,7 +235,7 @@
                     error: function(response) {
                         if (response.responseJSON.errors && response.responseJSON.errors
                             .email) {
-                            swal({
+                            swal.fire({
                                 title: "Error!",
                                 text: response.responseJSON.errors.email[0],
                                 icon: "error",
@@ -243,7 +243,7 @@
                             });
                         } else if (response.responseJSON.errors) {
                             const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            swal({
+                            swal.fire({
                                 title: "Error!",
                                 text: response.responseJSON.errors[firstErrorKey][0],
                                 icon: "error",
@@ -258,7 +258,7 @@
             $('.delete-btn').click(function(e) {
                 e.preventDefault();
                 var userId = $(this).data('id');
-                swal({
+                swal.fire({
                         title: "Are you sure?",
                         text: "Once deleted, you will not be able to recover this user!",
                         icon: "warning",
@@ -275,7 +275,7 @@
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        swal({
+                                        swal.fire({
                                             title: "Deleted!",
                                             text: response.success,
                                             icon: "success",
@@ -287,7 +287,7 @@
                                 },
                                 error: function(response) {
                                     if (response.responseJSON.error) {
-                                        swal({
+                                        swal.fire({
                                             title: "Error!",
                                             text: response.responseJSON.error,
                                             icon: "error",

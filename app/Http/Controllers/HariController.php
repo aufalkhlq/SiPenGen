@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\hari;
-use App\Http\Requests\StorehariRequest;
-use App\Http\Requests\UpdatehariRequest;
+use Illuminate\Http\Request;
 
 class HariController extends Controller
 {
@@ -13,7 +12,8 @@ class HariController extends Controller
      */
     public function index()
     {
-        return view('waktu.hari');
+        $haris = hari::all();
+        return view('waktu.hari ', compact('haris'));
     }
 
     /**
@@ -27,9 +27,19 @@ class HariController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorehariRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'hari' => 'required',
+        ]);
+        //create new hari
+        $hari = hari::create([
+            'hari' => $request->hari,
+        ]);
+        return response()->json([
+            'success' => 'Hari created successfully',
+            'redirect' => route('hari'),
+        ]);
     }
 
     /**
@@ -51,7 +61,7 @@ class HariController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatehariRequest $request, hari $hari)
+    public function update($request, hari $hari)
     {
         //
     }

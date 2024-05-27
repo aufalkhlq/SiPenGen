@@ -11,4 +11,17 @@ class Dosen extends Model
 
     protected $table = 'dosen';
     protected $fillable = ['nama_dosen', 'nip', 'prodi'];
+    public function pengampu()
+    {
+        return $this->hasMany(Pengampu::class);
+    }
+
+    public function jadwal()
+    {
+        return $this->hasMany(Jadwal::class);
+    }
+
+    
+
+
 }

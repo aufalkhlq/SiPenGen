@@ -157,7 +157,7 @@
                 data: $('#add-matkul-form').serialize(),
                 success: function(response) {
                     if (response.success) {
-                        swal({
+                        swal.fire({
                             title: "Success!",
                             text: response.success,
                             icon: "success",

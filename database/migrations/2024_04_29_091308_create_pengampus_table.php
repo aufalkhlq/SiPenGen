@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('jam', function (Blueprint $table) {
-            $table->string('waktu');
+        Schema::create('pengampu', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('dosen_id')->constrained('dosen');
+            $table->json('matkul_id')->constrained('matkul');
+            $table->timestamps();
         });
     }
 
@@ -21,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('pengampus');
     }
 };

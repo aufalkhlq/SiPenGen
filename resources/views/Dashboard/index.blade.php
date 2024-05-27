@@ -8,13 +8,13 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="dash-widget-header">
-                            <span class="dash-widget-icon bg-1">
-                                <i class="fas fa-dollar-sign"></i>
+                            <span class="dash-widget-icon bg-5">
+                                <i class="fas fa-user"></i>
                             </span>
                             <div class="dash-count">
-                                <div class="dash-title">Amount Due</div>
+                                <div class="dash-title">Total User</div>
                                 <div class="dash-counts">
-                                    <p>1,642</p>
+                                    <p class="h3 text-warning me-5">{{$users}}</p>
                                 </div>
                             </div>
                         </div>
@@ -22,8 +22,7 @@
                             <div class="progress-bar bg-5" role="progressbar" style="width: 75%" aria-valuenow="75"
                                 aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="text-muted mt-3 mb-0"><span class="text-danger me-1"><i
-                                    class="fas fa-arrow-down me-1"></i>1.15%</span> since last week</p>
+
                     </div>
                 </div>
             </div>
@@ -31,13 +30,13 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="dash-widget-header">
-                            <span class="dash-widget-icon bg-2">
+                            <span class="dash-widget-icon bg-6">
                                 <i class="fas fa-users"></i>
                             </span>
                             <div class="dash-count">
-                                <div class="dash-title">Customers</div>
+                                <div class="dash-title">Total Dosen</div>
                                 <div class="dash-counts">
-                                    <p>3,642</p>
+                                    <p class="h3 text-info me-5">{{$dosens}}</p>
                                 </div>
                             </div>
                         </div>
@@ -45,8 +44,7 @@
                             <div class="progress-bar bg-6" role="progressbar" style="width: 65%" aria-valuenow="75"
                                 aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="text-muted mt-3 mb-0"><span class="text-success me-1"><i
-                                    class="fas fa-arrow-up me-1"></i>2.37%</span> since last week</p>
+
                     </div>
                 </div>
             </div>
@@ -54,13 +52,13 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="dash-widget-header">
-                            <span class="dash-widget-icon bg-3">
+                            <span class="dash-widget-icon bg-7">
                                 <i class="fas fa-file-alt"></i>
                             </span>
                             <div class="dash-count">
-                                <div class="dash-title">Invoices</div>
+                                <div class="dash-title">Total Mata Kuliah</div>
                                 <div class="dash-counts">
-                                    <p>1,041</p>
+                                    <p class="h3 text-success me-5">{{$matkuls}}</p>
                                 </div>
                             </div>
                         </div>
@@ -68,8 +66,7 @@
                             <div class="progress-bar bg-7" role="progressbar" style="width: 85%" aria-valuenow="75"
                                 aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="text-muted mt-3 mb-0"><span class="text-success me-1"><i
-                                    class="fas fa-arrow-up me-1"></i>3.77%</span> since last week</p>
+
                     </div>
                 </div>
             </div>
@@ -77,22 +74,20 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="dash-widget-header">
-                            <span class="dash-widget-icon bg-4">
+                            <span class="dash-widget-icon bg-primary">
                                 <i class="far fa-file"></i>
                             </span>
                             <div class="dash-count">
-                                <div class="dash-title">Estimates</div>
+                                <div class="dash-title">Total Ruangan</div>
                                 <div class="dash-counts">
-                                    <p>2,150</p>
+                                    <p class="h3 text-primary me-5">{{$ruangans}}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="progress progress-sm mt-3">
-                            <div class="progress-bar bg-8" role="progressbar" style="width: 45%" aria-valuenow="75"
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 45%" aria-valuenow="75"
                                 aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <p class="text-muted mt-3 mb-0"><span class="text-danger me-1"><i
-                                    class="fas fa-arrow-down me-1"></i>8.68%</span> since last week</p>
                     </div>
                 </div>
             </div>

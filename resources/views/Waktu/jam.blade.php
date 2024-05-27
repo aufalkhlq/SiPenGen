@@ -55,8 +55,8 @@
                                         <tbody>
                                             @foreach ($jams as $jam)
                                                 <tr>
-                                                    <td>{{ $jam->jam }}</td>
-                                                    <td>{{ $jam->waktu }} </td>
+                                                    <td class="text-center">{{ $jam->jam }}</td>
+                                                    <td class="text-center">{{ $jam->waktu }} </td>
                                                     <td class="text-center">
                                                         <button type="button"
                                                             class="btn btn-sm btn-white text-success me-2 edit-btn"><i
@@ -158,7 +158,7 @@
                     data: $('#add-jam-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",

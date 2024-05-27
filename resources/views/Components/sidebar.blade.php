@@ -1,10 +1,11 @@
 <div class="sidebar-inner slimscroll">
     <div id="sidebar-menu" class="sidebar-menu">
         <ul>
-            <li class="menu-title"><span><b>Master Penjadwalan</b></span></li>
             <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <a href="{{ route('dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
             </li>
+            <li class="menu-title"><span><b>Master Penjadwalan</b></span></li>
+
             <li class="{{ request()->routeIs('user') ? 'active' : '' }}">
                 <a href="{{ route('user') }}"><i data-feather="users"></i> <span>Users</span></a>
             </li>
@@ -30,6 +31,13 @@
                 </ul>
             </li>
             <li class="menu-title"><span><b>Master Enrollment</b></span></li>
+            <li class="{{ request()->routeIs('pengampu') ? 'active' : '' }}">
+                <a href="{{ route('pengampu') }}"><i data-feather="user"></i> <span>Pengampu</span></a>
+            </li>
+            {{-- jadwal --}}
+            <li class="{{ request()->routeIs('jadwal') ? 'active' : '' }}">
+                <a href="{{ route('jadwal') }}"><i data-feather="calendar"></i> <span>Jadwal</span></a>
+            </li>
         </ul>
     </div>
 </div>

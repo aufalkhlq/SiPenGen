@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    <script src="https://unpkg.com/sweetalert@2"></script>
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
@@ -61,6 +61,7 @@
             </div>
         </div>
     </div>
+    <script src="{{ asset('assets/plugins/sweetalert/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/js/feather.min.js') }}"></script>
@@ -100,14 +101,16 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                     title: "Success!",
                                     text: response.success,
                                     icon: "success",
+                                    timer: 1000,
                                     button: "OK",
                                 })
                                 .then((value) => {
                                     window.location.href = response.redirect;
+
                                 });
                         } else if (response.error) {
                             toastr.error(response.error);

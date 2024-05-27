@@ -160,7 +160,7 @@
             $('#save-dosen-button').click(function(e) {
                 e.preventDefault();
                 if (!$('#nama_dosen').val() || !$('#nip').val()) {
-                    swal({
+                    swal.fire({
                         title: "Error!",
                         text: "Nama Dosen and NIP are required.",
                         icon: "error",
@@ -169,7 +169,7 @@
                     return;
                 }
                 if (!$('#prodi').val()) {
-                    swal({
+                    swal.fire({
                         title: "Error!",
                         text: "Silahkan Pilih Salah Satu Prodi.",
                         icon: "error",
@@ -183,7 +183,7 @@
                     data: $('#add-dosen-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",
@@ -220,7 +220,7 @@
                     data: $('#edit-dosen-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",
@@ -233,7 +233,7 @@
                     error: function(response) {
                         if (response.responseJSON.errors && response.responseJSON.errors
                             .email) {
-                            swal({
+                            swal.fire({
                                 title: "Error!",
                                 text: response.responseJSON.errors.email[0],
                                 icon: "error",
@@ -241,7 +241,7 @@
                             });
                         } else if (response.responseJSON.errors) {
                             const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            swal({
+                            swal.fire({
                                 title: "Error!",
                                 text: response.responseJSON.errors[firstErrorKey][0],
                                 icon: "error",
@@ -256,7 +256,7 @@
             $('.delete-btn').click(function(e) {
                 e.preventDefault();
                 var Id = $(this).data('id');
-                swal({
+                swal.fire({
                         title: "Are you sure?",
                         text: "Once deleted, you will not be able to recover this user!",
                         icon: "warning",
@@ -273,7 +273,7 @@
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        swal({
+                                        swal.fire({
                                             title: "Deleted!",
                                             text: response.success,
                                             icon: "success",
@@ -285,7 +285,7 @@
                                 },
                                 error: function(response) {
                                     if (response.responseJSON.error) {
-                                        swal({
+                                        swal.fire({
                                             title: "Error!",
                                             text: response.responseJSON.error,
                                             icon: "error",
