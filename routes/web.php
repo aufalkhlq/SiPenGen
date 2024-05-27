@@ -144,6 +144,14 @@ Route::group(['middleware' => 'auth'], function(){
 
 
 
+    //
+    Route::controller('App\Http\Controllers\HomeController')->group(function(){
+        route::get('/home', 'index')->name('home');
+    });
+
+
+
+
 });
 
 
