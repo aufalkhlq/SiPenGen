@@ -30,8 +30,7 @@ class JamController extends Controller
         $jam = jam::create([
 =======
         //create new ruangan
-        $jam = Jam::create([
->>>>>>> 865f0411564c207fe6f760c8faabef960c74ff14
+        $jam = jam::create([
             'jam' => $request->jam,
             'waktu' => $request->waktu,
         ]);
@@ -47,29 +46,29 @@ class JamController extends Controller
         $jam = Jam::findOrFail($id);
         return response()->json($jam);
     }
-    
+
     public function edit($id)
     {
         $jam = Jam::findOrFail($id);
         return response()->json($jam);
     }
-    
+
 
     public function update(Request $request, $id)
     {
         $jam = Jam::findOrFail($id);
-    
+
         $request->validate([
             'edit-jam' => 'required',
             'edit-waktu' => 'required',
         ]);
-    
+
         // Update data
         $jam->jam = $request->input('edit-jam');
         $jam->waktu = $request->input('edit-waktu');
-    
+
         $jam->save();
-    
+
         return response()->json([
             'success' => 'Jam edited successfully',
             'redirect' => route('jam'),

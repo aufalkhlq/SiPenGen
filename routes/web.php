@@ -84,7 +84,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/jam/{jam}/edit', 'edit')->name('jam.edit');
         Route::put('/jam/{jam}', 'update')->name('jam.update');
         Route::delete('/jam/{jam}', 'delete')->name('jam.delete');
-    });    
+    });
 
     //hari
     Route::controller('App\Http\Controllers\HariController')->group(function(){
@@ -127,6 +127,14 @@ Route::group(['middleware' => 'auth'], function(){
         Route::put('/pengampu/{pengampu}', 'update')->name('pengampu.update');
         Route::delete('/pengampu/{pengampu}', 'delete')->name('pengampu.delete');
     });
+
+    //
+    Route::controller('App\Http\Controllers\HomeController')->group(function(){
+        route::get('/home', 'index')->name('home');
+    });
+
+
+
 
     //
     Route::controller('App\Http\Controllers\HomeController')->group(function(){

@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         $this->call([
             KelasSeeder::class,
@@ -40,6 +41,8 @@ class DatabaseSeeder extends Seeder
             RuanganSeeder::class,
         ]);
 =======
+=======
+>>>>>>> 865f0411564c207fe6f760c8faabef960c74ff14
         $admin->assignRole('admin');
 
         $academicstaff = User::create([
@@ -55,6 +58,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('participant'),
         ]);
         $participant->assignRole('participant');
+<<<<<<< HEAD
+>>>>>>> 865f0411564c207fe6f760c8faabef960c74ff14
+=======
 >>>>>>> 865f0411564c207fe6f760c8faabef960c74ff14
     }
 }
