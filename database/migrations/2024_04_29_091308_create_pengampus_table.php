@@ -24,10 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-<<<<<<< HEAD:database/migrations/2024_04_29_091308_create_pengampus_table.php
-        Schema::dropIfExists('pengampus');
-=======
-        Schema::dropIfExists('jam');
->>>>>>> 865f0411564c207fe6f760c8faabef960c74ff14:database/migrations/2024_04_25_075235_add_waktu_table.php
+        Schema::dropIfExists('pengampu');
     }
 };

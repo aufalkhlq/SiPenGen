@@ -25,11 +25,7 @@ class JamController extends Controller
             'waktu' => 'required',
 
         ]);
-<<<<<<< HEAD
         //create new jam
-        $jam = jam::create([
-=======
-        //create new ruangan
         $jam = Jam::create([
             'jam' => $request->jam,
             'waktu' => $request->waktu,
