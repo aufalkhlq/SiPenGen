@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 use App\Models\Jadwal;
 use App\Genetik\GeneticAlgorithm;
 use Illuminate\Http\Request;
@@ -75,3 +76,18 @@ class JadwalController extends Controller
         //
     }
 }
+=======
+// use App\Models\Dosen;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class JadwalController extends Controller
+{
+    public function index()
+    {
+        // $jadwal = Kelas::all();
+        // return view('kelas.index', compact('kelas'));
+    }
+
+}
+>>>>>>> 865f0411564c207fe6f760c8faabef960c74ff14
