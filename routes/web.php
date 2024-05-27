@@ -25,6 +25,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::controller('App\Http\Controllers\DashboardController')->group(function(){
         Route::get('/', 'index')->name('dashboard');
     });
+
     Route::controller('App\Http\Controllers\UserController')->group(function(){
         Route::get('/user', 'index')->name('user');
         Route::post('/user', 'store')->name('user.store');
@@ -80,7 +81,7 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/jam/{jam}/edit', 'edit')->name('jam.edit');
         Route::put('/jam/{jam}', 'update')->name('jam.update');
         Route::delete('/jam/{jam}', 'delete')->name('jam.delete');
-    });
+    });    
 
     //hari
     Route::controller('App\Http\Controllers\HariController')->group(function(){
@@ -101,6 +102,14 @@ Route::group(['middleware' => 'auth'], function(){
         Route::put('/jadwal/{jadwal}', 'update')->name('jadwal.update');
         Route::delete('/jadwal/{jadwal}', 'delete')->name('jadwal.delete');
     });
+
+    //
+    Route::controller('App\Http\Controllers\HomeController')->group(function(){
+        route::get('/home', 'index')->name('home');
+    });
+
+
+
 
 });
 

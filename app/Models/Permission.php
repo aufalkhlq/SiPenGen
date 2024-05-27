@@ -9,6 +9,6 @@ class Jam extends Model
 {
     use HasFactory;
     
-    protected $table = 'jam';
-    protected $fillable = ['id','jam','waktu'];
+    protected $table = 'permission';
+    protected $fillable = ['id','name','guard_name','created_at','updated_at'];
 }
