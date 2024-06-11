@@ -45,16 +45,8 @@
                                         @foreach ($jadwals as $item)
                                             <tr>
                                                 <td>{{ $item->pengampu->dosen->nama_dosen }}</td>
-                                                <td>
-                                                    @foreach (json_decode($item->pengampu->matkul_id) as $matkulId)
-                                                        {{ App\Models\Matkul::find($matkulId)->nama_matkul }}
-                                                    @endforeach
-                                                </td>
-                                                <td>
-                                                    @foreach (json_decode($item->pengampu->matkul_id) as $matkulId)
-                                                        {{ App\Models\Matkul::find($matkulId)->kode_matkul }}
-                                                    @endforeach
-                                                </td>
+                                                <td>{{ $item->pengampu->matkul->nama_matkul }}</td>
+                                                <td>{{ $item->pengampu->matkul->kode_matkul }}</td>
                                                 <td>{{ $item->ruangan->nama_ruangan }}</td>
                                                 <td>{{ $item->jam->waktu }} </td>
                                                 <td>{{ $item->hari->hari }}</td>
@@ -73,7 +65,7 @@
     </div>
 @endsection
 @push('script')
-  
+
     <script>
         // $('#confirm-text').on('click', function(e) {
         //     e.preventDefault();

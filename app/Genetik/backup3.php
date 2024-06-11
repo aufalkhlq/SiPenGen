@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Genetik;
 
 use App\Models\Kelas;
@@ -18,9 +17,9 @@ class GeneticAlgorithm
     private $jam;
     private $hari;
     private $kelas;
-    private $sks;
+    private $sksPerDay = 4; // 4 SKS per day
+    private $sksPerSemester = 20; // 20 SKS per semester
     private $mutationRate = 0.01;
-    private $maxHoursPerDay = 8;
 
     public function __construct()
     {
@@ -30,7 +29,6 @@ class GeneticAlgorithm
         $this->jam = Jam::all();
         $this->hari = Hari::all();
         $this->kelas = Kelas::all();
-        $this->sks = 1; // 1 SKS = 1 jam pelajaran
     }
 
     public function run($populationSize, $maxGenerations)
@@ -96,26 +94,32 @@ class GeneticAlgorithm
     private function createDaySchedule($kelas, $hari)
     {
         $daySchedule = [];
-        $subjects = $this->pengampu->shuffle();
-        $subjectCount = 0;
-        $hoursScheduled = 0;
+        $remainingHours = $this->sksPerDay * 2; // 4 SKS per day * 2 hours per SKS
 
-        foreach ($this->jam as $jam) {
-            if ($hoursScheduled >= $this->maxHoursPerDay || $subjectCount >= count($subjects)) {
+        while ($remainingHours > 0) {
+            $pengampu = $this->pengampu->random();
+            $matkul = $pengampu->matkul;
+            $sks = $matkul->sks * 2; // 1 SKS = 2 hours
+
+            if ($remainingHours >= $sks) {
+                $session = [
+                    'kelas_id' => $kelas->id,
+                    'hari_id' => $hari->id,
+                    'ruangan_id' => $this->ruangan->random()->id,
+                    'pengampu_id' => $pengampu->id,
+                    'matkul_id' => $matkul->id,
+                    'sks' => $sks,
+                ];
+
+                for ($i = 0; $i < $sks; $i++) {
+                    $session['jam_id'][] = $this->jam->random()->id;
+                }
+
+                $daySchedule[] = $session;
+                $remainingHours -= $sks;
+            } else {
                 break;
             }
-
-            $subject = $subjects[$subjectCount];
-            $daySchedule[] = [
-                'kelas_id' => $kelas->id,
-                'hari_id' => $hari->id,
-                'ruangan_id' => $this->ruangan->random()->id,
-                'jam_id' => $jam->id,
-                'pengampu_id' => $subject->id,
-            ];
-
-            $hoursScheduled++;
-            $subjectCount++;
         }
 
         return $daySchedule;
@@ -170,21 +174,11 @@ class GeneticAlgorithm
     {
         foreach ($schedule as $kelasId => $classSchedule) {
             if (rand(0, 100) / 100 < $this->mutationRate) {
-                // Ensure that $classSchedule has elements before accessing array keys
-                if (!empty($classSchedule)) {
-                    $dayIndex = array_rand($classSchedule);
-                    $daySchedule = $classSchedule[$dayIndex];
-
-                    // Ensure the 'hari_id' key exists before accessing it
-                    if (isset($daySchedule[0]['hari_id'])) {
-                        $schedule[$kelasId][$dayIndex] = $this->createDaySchedule(
-                            Kelas::find($kelasId),
-                            Hari::find($daySchedule[0]['hari_id'])
-                        );
-                    }
-                }
+                $dayIndex = array_rand($classSchedule);
+                $schedule[$kelasId][$dayIndex] = $this->createDaySchedule(Kelas::find($kelasId), Hari::find($classSchedule[$dayIndex][0]['hari_id']));
             }
         }
+
         return $schedule;
     }
 
@@ -194,31 +188,34 @@ class GeneticAlgorithm
 
         foreach ($schedule as $kelasId => $classSchedule) {
             foreach ($classSchedule as $hariId => $daySchedule) {
-                $fitness += $this->checkSchedule($daySchedule);
+                foreach ($daySchedule as $session) {
+                    $fitness += $this->checkSchedule($session);
+                }
             }
         }
 
         return $fitness;
     }
 
-    private function checkSchedule($daySchedule)
+    private function checkSchedule($session)
     {
         $fitness = 0;
 
-        foreach ($daySchedule as $schedule) {
-            $checkPengampu = Jadwal::where('pengampu_id', $schedule['pengampu_id'])
-                ->where('jam_id', $schedule['jam_id'])
-                ->where('hari_id', $schedule['hari_id'])
+        $jamIds = $session['jam_id'];
+        foreach ($jamIds as $jamId) {
+            $checkPengampu = Jadwal::where('pengampu_id', $session['pengampu_id'])
+                ->where('jam_id', $jamId)
+                ->where('hari_id', $session['hari_id'])
                 ->count();
 
-            $checkRuangan = Jadwal::where('ruangan_id', $schedule['ruangan_id'])
-                ->where('jam_id', $schedule['jam_id'])
-                ->where('hari_id', $schedule['hari_id'])
+            $checkRuangan = Jadwal::where('ruangan_id', $session['ruangan_id'])
+                ->where('jam_id', $jamId)
+                ->where('hari_id', $session['hari_id'])
                 ->count();
 
-            $checkKelas = Jadwal::where('kelas_id', $schedule['kelas_id'])
-                ->where('jam_id', $schedule['jam_id'])
-                ->where('hari_id', $schedule['hari_id'])
+            $checkKelas = Jadwal::where('kelas_id', $session['kelas_id'])
+                ->where('jam_id', $jamId)
+                ->where('hari_id', $session['hari_id'])
                 ->count();
 
             if ($checkPengampu > 1) {
@@ -241,14 +238,17 @@ class GeneticAlgorithm
     {
         foreach ($schedule as $kelasId => $classSchedule) {
             foreach ($classSchedule as $hariId => $daySchedule) {
-                foreach ($daySchedule as $slot) {
-                    $jadwal = new Jadwal();
-                    $jadwal->kelas_id = $slot['kelas_id'];
-                    $jadwal->hari_id = $slot['hari_id'];
-                    $jadwal->ruangan_id = $slot['ruangan_id'];
-                    $jadwal->jam_id = $slot['jam_id'];
-                    $jadwal->pengampu_id = $slot['pengampu_id'];
-                    $jadwal->save();
+                foreach ($daySchedule as $session) {
+                    foreach ($session['jam_id'] as $jamId) {
+                        $jadwal = new Jadwal();
+                        $jadwal->kelas_id = $kelasId;
+                        $jadwal->hari_id = $hariId;
+                        $jadwal->ruangan_id = $session['ruangan_id'];
+                        $jadwal->jam_id = $jamId;
+                        $jadwal->pengampu_id = $session['pengampu_id'];
+                        // $jadwal->matkul_id = $session['matkul_id'];
+                        $jadwal->save();
+                    }
                 }
             }
         }
@@ -262,8 +262,8 @@ class GeneticAlgorithm
             ->join('jam', 'jadwal.jam_id', '=', 'jam.id')
             ->join('ruangan', 'jadwal.ruangan_id', '=', 'ruangan.id')
             ->join('pengampu', 'jadwal.pengampu_id', '=', 'pengampu.id')
-            ->select('kelas.nama as kelas', 'hari.nama as hari', 'jam.jam as jam', 'ruangan.nama as ruangan', 'pengampu.nama as pengampu')
+            ->join('matkul', 'jadwal.matkul_id', '=', 'matkul.id')
+            ->select('kelas.nama as kelas', 'hari.nama as hari', 'jam.jam as jam', 'ruangan.nama as ruangan', 'pengampu.nama as pengampu', 'matkul.nama as matkul')
             ->get();
     }
-
 }

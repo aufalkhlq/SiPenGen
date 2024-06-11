@@ -133,25 +133,6 @@ Route::group(['middleware' => 'auth'], function(){
         route::get('/home', 'index')->name('home');
     });
 
-
-
-
-    //
-    Route::controller('App\Http\Controllers\HomeController')->group(function(){
-        route::get('/home', 'index')->name('home');
-    });
-
-
-
-
-    //
-    Route::controller('App\Http\Controllers\HomeController')->group(function(){
-        route::get('/home', 'index')->name('home');
-    });
-
-
-
-
 });
 
 

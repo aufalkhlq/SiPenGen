@@ -24,16 +24,25 @@ class JadwalController extends Controller
      */
 
 
-    public function generateSchedule(Request $request)
+     public function generateSchedule(Request $request)
+
     {
-        $populationSize = $request->input('population_size', 50); // Default to 50
-        $maxGenerations = $request->input('max_generations', 100); // Default to 100
 
-        // Run the genetic algorithm
-        $ga = new GeneticAlgorithm();
-        $bestSchedule = $ga->run($populationSize, $maxGenerations);
+        $populationSize = $request->input('population_size', 50); // default to 50
+        $maxGenerations = $request->input('max_generations', 100); // default to 100
 
-        return response()->json(['status' => 'finished']);
+        $geneticAlgorithm = new GeneticAlgorithm();
+        $bestSchedule = $geneticAlgorithm->run($populationSize, $maxGenerations);
+
+        return response()->json(['success' => true, 'schedule' => $bestSchedule]);
+    }
+
+    public function viewSchedule()
+    {
+        $geneticAlgorithm = new GeneticAlgorithm();
+        $schedule = $geneticAlgorithm->getSchedule();
+
+        return response()->json(['schedule' => $schedule]);
     }
 
     public function status()
@@ -43,6 +52,13 @@ class JadwalController extends Controller
         $status = $isFinished ? 'finished' : 'processing';
 
         return response()->json(['status' => $status]);
+    }
+    public function getSchedule()
+    {
+        $geneticAlgorithm = new GeneticAlgorithm();
+        $schedule = $geneticAlgorithm->getSchedule();
+
+        return response()->json($schedule);
     }
     /**
      * Display the specified resource.

@@ -16,7 +16,7 @@ class PengampuController extends Controller
 
     {
         $pengampus = Pengampu::all();
-    $matkuls = Matkul::all();
+    $matkuls = Matkul::all()->keyBy('id');
     $dosens = Dosen::all();
 
         return view('pengampu.index',['pengampus' => $pengampus, 'matkuls' => $matkuls, 'dosens' => $dosens]);
@@ -37,15 +37,15 @@ class PengampuController extends Controller
     {
         // Validasi data
         $validatedData = $request->validate([
-            'dosen_id' => 'required',
-            'matkul_id' => 'required', // jika menggunakan multiple select
+            'dosen_id' => 'required|unique:pengampu,dosen_id',
+            'matkul_id' => 'required|array', // jika menggunakan multiple select
         ]);
 
         // Simpan data ke database
         $pengampu = new Pengampu();
         $pengampu->dosen_id = $validatedData['dosen_id'];
         // Jika menggunakan multiple select
-        $pengampu->matkul_id = $validatedData['matkul_id'];
+        $pengampu->matkul_id = json_encode($validatedData['matkul_id']);
         $pengampu->save();
 
         return response()->json(['success' => 'Data berhasil disimpan']);

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pengampu', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dosen_id')->constrained('dosen');
-            $table->json('matkul_id')->constrained('matkul');
+            $table->foreignId('matkul_id')->constrained('matkul');
             $table->timestamps();
         });
     }

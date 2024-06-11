@@ -47,7 +47,30 @@
                                         <tr>
                                             <td class="text-center">{{ $no++ }}</td>
                                             <td class="text-center">{{ $pengampu->dosen->nama_dosen }}</td>
-                                            <td class="text-center">{{ $pengampu->matkul->nama_matkul }}</td>
+                                            <td class="text-center">
+                                                @php
+                                                    $matkul_id = json_decode($pengampu->matkul_id, true);
+                                                @endphp
+
+                                                @if (is_array($matkul_id))
+                                                    @php
+                                                        $counter = 0;
+                                                    @endphp
+                                                    @foreach ($matkul_id as $id)
+                                                        @if (isset($matkuls[$id]))
+                                                            <span
+                                                                class="badge bg-success">{{ $matkuls[$id]->nama_matkul }}</span>
+                                                            @php
+                                                                $counter++;
+                                                            @endphp
+                                                            @if ($counter % 4 == 0)
+                                                                <br>
+                                                                <br>
+                                                            @endif
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            </td>
                                             <td class="text-center">
                                                 <button type="button"
                                                     class="btn btn-sm btn-white text-success me-2 edit-btn">
@@ -91,8 +114,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="matkul_id" class="form-label">Mata Kuliah</label>
-                            <select class="form-select" id="matkul_id" name="matkul_id" required>
-                                <option selected disabled>Select Matkul</option>
+                            <select class="form-control tagging" multiple="multiple" tabindex="-4" style="z-index: 1052;">
                                 @foreach ($matkuls as $matkul)
                                     <option value="{{ $matkul->id }}">{{ $matkul->nama_matkul }}</option>
                                 @endforeach
@@ -144,18 +166,33 @@
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
     <script>
         $(document).ready(function() {
+            if ($.fn.select2) {
+                $(".tagging").select2({
+                    dropdownParent: $("#addpengampuModal") // append dropdown to modal
+                });
+            } else {
+                console.error('Select2 is not loaded');
+            }
+
             $('#add-pengampu-form').on('submit', function(e) {
                 e.preventDefault();
 
                 // Get selected options
-
+                var selectedOptions = $('.tagging').val();
                 var idDosen = $('#dosen_id').val();
-                var idMatkul = $('#matkul_id').val();
+                var idMatkul = selectedOptions.join(',');
 
                 $.ajax({
                     type: 'POST',
                     url: '{{ route('pengampu.store') }}',
-                    data: $('#add-pengampu-form').serialize(),
+                    data: {
+                        ...$(this).serializeArray().reduce((obj, item) => {
+                            obj[item.name] = item.value;
+                            return obj;
+                        }, {}),
+                        matkul_id: selectedOptions,
+                        dosen_id: idDosen
+                    },
                     success: function(response) {
                         if (response.success) {
                             swal.fire({
@@ -174,7 +211,7 @@
                             if (errors.dosen_id) {
                                 swal.fire({
                                     title: "Error!",
-                                    text: "The Dosen and Matkul field is required",
+                                    text: "The selected dosen has already been added.",
                                     icon: "error",
                                     button: "OK",
                                 });
