@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Jam; // Import model Jam
+use App\Models\Jam;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -11,88 +11,39 @@ class JamController extends Controller
     public function index()
     {
         $jams = Jam::all();
-        return view('waktu.jam', compact('jams'));
-        // return view('waktu.jam');
+        return view('admin.waktu.jam', compact('jams'));
     }
 
     public function store(Request $request)
     {
-        // dd($request->all());
-        $request->validate([
+        $validated = $request->validate([
             'jam' => 'required',
             'waktu' => 'required',
-
         ]);
 
-        //create new jam
-        $jam = jam::create([
-
-            'jam' => $request->jam,
-            'waktu' => $request->waktu,
-        ]);
-
+        Jam::create($validated);
+        return response()->json(['success' => 'Hour added successfully']);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(jam $jam)
+    public function edit(Jam $jam)
     {
-        $jam = Jam::findOrFail($id);
         return response()->json($jam);
-        //
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(jam $jam)
+    public function update(Request $request, Jam $jam)
     {
-        $jam = Jam::findOrFail($id);
-        return response()->json($jam);
-        //
-    }
-
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, jam $jam)
-    {
-        $jam = Jam::findOrFail($id);
-
-        $request->validate([
-            'edit-jam' => 'required',
-            'edit-waktu' => 'required',
+        $validated = $request->validate([
+            'jam' => 'required',
+            'waktu' => 'required',
         ]);
 
-        // Update data
-        $jam->jam = $request->input('edit-jam');
-        $jam->waktu = $request->input('edit-waktu');
-
-        $jam->save();
-
-        return response()->json([
-            'success' => 'Jam edited successfully',
-            'redirect' => route('jam'),
-        ]);
-        //
+        $jam->update($validated);
+        return response()->json(['success' => 'Hour updated successfully']);
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(jam $jam)
+    public function destroy(Jam $jam)
     {
-        $jam = Jam::find($id);
         $jam->delete();
-        return response()->json([
-            'success' => 'Hour deleted successfully',
-            'redirect' => route('jam'),
-        ]);
-
+        return response()->json(['success' => 'Hour deleted successfully']);
     }
 }

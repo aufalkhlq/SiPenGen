@@ -155,148 +155,145 @@
 @endsection
 
 @push('script')
-    <script>
-        $(document).ready(function() {
-            $('#save-dosen-button').click(function(e) {
-                e.preventDefault();
-                if (!$('#nama_dosen').val() || !$('#nip').val()) {
-                    swal.fire({
-                        title: "Error!",
-                        text: "Nama Dosen and NIP are required.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                    return;
-                }
-                if (!$('#prodi').val()) {
-                    swal.fire({
-                        title: "Error!",
-                        text: "Silahkan Pilih Salah Satu Prodi.",
-                        icon: "error",
-                        button: "OK",
-                    })
-                }
+<script>
+    $(document).ready(function() {
+        $('#save-dosen-button').click(function(e) {
+            e.preventDefault();
+            if (!$('#nama_dosen').val() || !$('#nip').val()) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Nama Dosen and NIP are required.",
+                    icon: "error",
+                    button: "OK",
+                });
+                return;
+            }
+            if (!$('#prodi').val()) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Silahkan Pilih Salah Satu Prodi.",
+                    icon: "error",
+                    button: "OK",
+                });
+                return;
+            }
 
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route('dosen.store') }}',
-                    data: $('#add-dosen-form').serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            swal.fire({
-                                title: "Success!",
-                                text: response.success,
-                                icon: "success",
-                                button: "OK",
-                            }).then((value) => {
-                                location.reload();
-                            });
-                        }
-                    },
-                });
-            });
-            // edit dosen
-            $('.edit-btn').click(function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                $.ajax({
-                    type: 'GET',
-                    url: '/dosen/' + id + '/edit',
-                    success: function(response) {
-                        $('#edit-nama_dosen').val(response.nama_dosen);
-                        $('#edit-nip').val(response.nip);
-                        $('#edit-prodi').val(response.prodi);
-                        $('#edit-id').val(response.id);
-                        $('#editDosenModal').modal('show');
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('dosen.store') }}',
+                data: $('#add-dosen-form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: response.success,
+                            icon: "success",
+                            button: "OK",
+                        }).then((value) => {
+                            location.reload();
+                        });
                     }
-                });
-            });
-            // update dosen
-            $('#update-dosen-button').click(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'PUT',
-                    url: '/dosen/' + $('#edit-id').val(),
-                    data: $('#edit-dosen-form').serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            swal.fire({
-                                title: "Success!",
-                                text: response.success,
-                                icon: "success",
-                                button: "OK",
-                            }).then((value) => {
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function(response) {
-                        if (response.responseJSON.errors && response.responseJSON.errors
-                            .email) {
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors.email[0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        } else if (response.responseJSON.errors) {
-                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors[firstErrorKey][0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        }
-                    }
-                });
-            });
-
-            // delete dosen
-            $('.delete-btn').click(function(e) {
-                e.preventDefault();
-                var Id = $(this).data('id');
-                swal.fire({
-                        title: "Are you sure?",
-                        text: "Once deleted, you will not be able to recover this user!",
-                        icon: "warning",
-                        buttons: true,
-                        dangerMode: true,
-                    })
-                    .then((willDelete) => {
-                        if (willDelete) {
-                            $.ajax({
-                                type: 'DELETE',
-                                url: '/dosen/' + Id,
-                                data: {
-                                    '_token': $('input[name=_token]').val(),
-                                },
-                                success: function(response) {
-                                    if (response.success) {
-                                        swal.fire({
-                                            title: "Deleted!",
-                                            text: response.success,
-                                            icon: "success",
-                                            button: "OK",
-                                        }).then((value) => {
-                                            location.reload();
-                                        });
-                                    }
-                                },
-                                error: function(response) {
-                                    if (response.responseJSON.error) {
-                                        swal.fire({
-                                            title: "Error!",
-                                            text: response.responseJSON.error,
-                                            icon: "error",
-                                            button: "OK",
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
+                },
             });
         });
-    </script>
+
+        // edit dosen
+        $('.edit-btn').click(function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            $.ajax({
+                type: 'GET',
+                url: '/dosen/' + id + '/edit',
+                success: function(response) {
+                    $('#edit-nama_dosen').val(response.nama_dosen);
+                    $('#edit-nip').val(response.nip);
+                    $('#edit-prodi').val(response.prodi);
+                    $('#edit-id').val(response.id);
+                    $('#editDosenModal').modal('show');
+                }
+            });
+        });
+
+        // update dosen
+        $('#update-dosen-button').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'PUT',
+                url: '/dosen/' + $('#edit-id').val(),
+                data: $('#edit-dosen-form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: response.success,
+                            icon: "success",
+                            button: "OK",
+                        }).then((value) => {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(response) {
+                    if (response.responseJSON.errors) {
+                        const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                        Swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors[firstErrorKey][0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                }
+            });
+        });
+
+        // delete dosen
+        $('.delete-btn').click(function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this user!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '/dosen/' + id,
+                        data: {
+                            '_token': $('input[name=_token]').val(),
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: response.success,
+                                    icon: "success",
+                                    button: "OK",
+                                }).then((value) => {
+                                    location.reload();
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            if (response.responseJSON.error) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: response.responseJSON.error,
+                                    icon: "error",
+                                    button: "OK",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
 @endpush

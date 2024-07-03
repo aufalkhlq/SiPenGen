@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     /**
@@ -22,13 +24,23 @@ class AuthController extends Controller
         $validate = $request->validate([
             'email' => 'required|email',
             'password' => 'required'
+
         ]);
 
         if (auth()->attempt($validate)) {
-            return response()->json([
-                'success' => 'Welcome to the dashboard',
-                'redirect' => route('dashboard'),
-            ]);
+            $user = Auth::user();
+            if ($user->role == 'admin') {
+                return response()->json([
+                    'success' => 'Welcome to the dashboard',
+                    'redirect' => route('dashboard'),
+                ]);
+            } elseif ($user->role == 'mahasiswa') {
+                return response()->json([
+                    'success' => 'Welcome to the dashboard',
+                    'redirect' => route('mahasiswa.dashboard'),
+                ]);
+            }
+
         } else {
             return response()->json([
                 'error' => 'Invalid Email or Password details',

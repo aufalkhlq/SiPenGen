@@ -24,13 +24,15 @@ Route::controller('App\Http\Controllers\AuthController')->group(function(){
 });
 
 // Dashboard
-Route::group(['middleware' => 'auth'], function(){
+Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
     Route::controller('App\Http\Controllers\DashboardController')->group(function(){
         Route::get('/', 'index')->name('dashboard');
     });
 
     Route::controller('App\Http\Controllers\UserController')->group(function(){
         Route::get('/user', 'index')->name('user');
+        Route::get('/user/dosen', 'dosen')->name('user.dosen');
+        Route::get('/user/mahasiswa', 'mahasiswa')->name('user.mahasiswa');
         Route::post('/user', 'store')->name('user.store');
         Route::get('/user/{user}', 'show')->name('user.show');
         Route::get('/user/{user}/edit', 'edit')->name('user.edit');
@@ -101,22 +103,13 @@ Route::group(['middleware' => 'auth'], function(){
         Route::get('/jadwal', 'index')->name('jadwal');
         Route::post('/jadwal', 'store')->name('jadwal.store');
         Route::post('/generate', 'generateSchedule')->name('jadwal.generate');
+        Route::get('/jadwal/conflicts',  'checkConflicts')->name('jadwal.conflicts');
         Route::get('/jadwal/{jadwal}', 'show')->name('jadwal.show');
         Route::get('/jadwal/{jadwal}/edit', 'edit')->name('jadwal.edit');
         Route::put('/jadwal/{jadwal}', 'update')->name('jadwal.update');
         Route::delete('/jadwal/{jadwal}', 'delete')->name('jadwal.delete');
         Route::get('/jadwal/status', 'status')->name('jadwal.status');
     });
-
-    // genetik
-    // Route::controller('App\Http\Controllers\Genetik\GenetikController')->group(function(){
-    //     Route::get('/genetik', 'index')->name('genetik');
-    //     Route::post('/genetik', 'generateSchedule')->name('genetik.generate');
-    //     Route::get('/genetik/{genetik}', 'show')->name('genetik.show');
-    //     Route::get('/genetik/{genetik}/edit', 'edit')->name('genetik.edit');
-    //     Route::put('/genetik/{genetik}', 'update')->name('genetik.update');
-    //     Route::delete('/genetik/{genetik}', 'delete')->name('genetik.delete');
-    // });
 
     // pengampu
     Route::controller('App\Http\Controllers\PengampuController')->group(function(){
@@ -127,16 +120,21 @@ Route::group(['middleware' => 'auth'], function(){
         Route::put('/pengampu/{pengampu}', 'update')->name('pengampu.update');
         Route::delete('/pengampu/{pengampu}', 'delete')->name('pengampu.delete');
     });
+    // Route::controller('App\Http\Controllers\HomeController')->group(function(){
+    //     route::get('/home', 'index')->name('home');
+    // });
 
-    //
-    Route::controller('App\Http\Controllers\HomeController')->group(function(){
-        route::get('/home', 'index')->name('home');
+});
+
+Route::group(['middleware' => ['auth', 'checkRole:mahasiswa'], 'prefix' => 'mahasiswa'], function () {
+    Route::controller('App\Http\Controllers\mahasiswa\DashboardController')->group(function () {
+        Route::get('/dashboard', 'index')->name('mahasiswa.dashboard');
     });
+    Route::controller('App\Http\Controllers\mahasiswa\JadwalController')->group(function () {
+        Route::get('/jadwal', 'index')->name('mahasiswa.jadwal');
+    });
+
 
 });
 
 
-
-Route::get('/users', function (){
-    return view ('welcome');
-})->name('welcome');

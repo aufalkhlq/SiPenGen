@@ -16,15 +16,16 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        return view('user.index', compact('users'));
+        return view('admin.user.index', compact('users'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function dosen()
     {
-
+        $users = User::all();
+        return view('user.dosen', compact('users'));
     }
 
     /**
@@ -36,28 +37,51 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
+            'role' => 'required|in:admin,dosen,mahasiswa'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
         $user->setRememberToken(Str::random(50));
         $user->save();
 
-        if ($user) {
-            return response()->json([
-                'success' => 'User created successfully',
-                'redirect' => route('user'),
-            ]);
-        } else {
-            return response()->json([
-                'error' => 'Failed to created user. Please try again.',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        return response()->json([
+            'success' => 'User created successfully',
+            'redirect' => route('user'),
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        $request->validate([
+            'edit-name' => 'required|max:255',
+            'edit-email' => 'required|email|unique:users,email,' . $id,
+            'edit-role' => 'required|in:admin,dosen,mahasiswa'
+        ]);
+
+        $user->name = $request->input('edit-name');
+        $user->email = $request->input('edit-email');
+        $user->role = $request->input('edit-role');
+
+        if ($request->input('edit-password')) {
+            $request->validate(['edit-password' => 'required|min:8']);
+            $user->password = bcrypt($request->input('edit-password'));
         }
 
+        $user->save();
+
+        return response()->json([
+            'success' => 'User updated successfully',
+            'redirect' => route('user'),
+        ]);
     }
+
 
     /**
      * Display the specified resource.
@@ -82,46 +106,46 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-        $user = User::find($id);
+    // public function update(Request $request, $id)
+    // {
+    //     $user = User::find($id);
 
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
+    //     if (!$user) {
+    //         return response()->json(['error' => 'User not found'], 404);
+    //     }
 
-        $request->validate([
-            'edit-name' => 'required|max:255',
-            'edit-email' => 'required|email|unique:users,email,' . $id,
-        ]);
+    //     $request->validate([
+    //         'edit-name' => 'required|max:255',
+    //         'edit-email' => 'required|email|unique:users,email,' . $id,
+    //     ]);
 
-        $user->name = $request->input('edit-name');
-        $user->email = $request->input('edit-email');
+    //     $user->name = $request->input('edit-name');
+    //     $user->email = $request->input('edit-email');
 
-        // Only update the password if a new one is provided
-        if ($request->input('edit-password')) {
-            $request->validate([
-                'edit-password' => 'required|min:8',
-            ]);
-            $user->password = bcrypt($request->input('edit-password'));
-        } else{
-            // when password its > 8
-        }
+    //     // Only update the password if a new one is provided
+    //     if ($request->input('edit-password')) {
+    //         $request->validate([
+    //             'edit-password' => 'required|min:8',
+    //         ]);
+    //         $user->password = bcrypt($request->input('edit-password'));
+    //     } else{
 
-        $user->save();
+    //     }
 
-        if ($user) {
-            return response()->json([
-                'success' => 'User edited successfully',
-                'redirect' => route('user'),
-            ]);
-        }
-        else {
-            return response()->json([
-                'error' => 'Failed to edit user. Please try again.',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-    }
+    //     $user->save();
+
+    //     if ($user) {
+    //         return response()->json([
+    //             'success' => 'User edited successfully',
+    //             'redirect' => route('user'),
+    //         ]);
+    //     }
+    //     else {
+    //         return response()->json([
+    //             'error' => 'Failed to edit user. Please try again.',
+    //         ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    //     }
+    // }
 
     /**
      * Remove the specified resource from storage.

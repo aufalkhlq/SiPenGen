@@ -8,16 +8,12 @@ use App\Models\Ruangan;
 use App\Models\Hari;
 use App\Models\Jam;
 use Illuminate\Support\Facades\Log;
-ini_set('max_execution_time', 2000); // Set the maximum execution time to 5 minutes
 
 class GeneticAlgorithm
 {
-    public function inisialisasiPopulasi($jumlahIndividu, $jumlahJam, $jumlahHari, $jumlahRuangan) {
+    public function inisialisasiPopulasi($jumlahIndividu, $jumlahKelas, $jumlahMatkul, $jumlahJam, $jumlahHari, $jumlahRuangan) {
         Log::info('Inisialisasi Populasi');
         $populasi = [];
-
-        $jumlahKelas = Kelas::count();
-        $pengampus = Pengampu::with('matkul')->get();
 
         for ($i = 0; $i < $jumlahIndividu; $i++) {
             Log::info("Inisialisasi Individu", ['individu' => $i]);
@@ -25,10 +21,10 @@ class GeneticAlgorithm
             $jadwalMap = []; // Untuk cek konflik
 
             for ($j = 0; $j < $jumlahKelas; $j++) {
-                Log::info("Inisialisasi Kelas", ['kelas' => $j + 1]);
-                foreach ($pengampus as $pengampu) {
-                    Log::info("Inisialisasi Matkul", ['matkul' => $pengampu->matkul->id]);
-                    $matkul = $pengampu->matkul;
+                Log::info("Inisialisasi Kelas", ['kelas' => $j]);
+                for ($k = 0; $k < $jumlahMatkul; $k++) {
+                    Log::info("Inisialisasi Matkul", ['matkul' => $k]);
+                    $matkul = Pengampu::find($k + 1)->matkul;
                     $sks = $matkul->sks;
 
                     for ($s = 0; $s < $sks; $s++) {
@@ -36,14 +32,14 @@ class GeneticAlgorithm
                         $attempts = 0;
                         $maxAttempts = 100; // Batasi jumlah percobaan
                         do {
-                            $jadwal = $this->buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $j + 1, $pengampu->id, $jadwalMap);
+                            $jadwal = $this->buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $j + 1, $k + 1, $jadwalMap);
                             $attempts++;
                         } while (!$jadwal && $attempts < $maxAttempts);
 
                         if ($jadwal) {
                             $individu[] = $jadwal;
                         } else {
-                            Log::warning("Gagal inisialisasi jadwal setelah $maxAttempts percobaan untuk kelas " . ($j + 1) . " matkul " . $matkul->id . " sks loop $s");
+                            Log::warning("Gagal inisialisasi jadwal setelah $maxAttempts percobaan");
                         }
                     }
                 }
@@ -182,9 +178,9 @@ class GeneticAlgorithm
         return $populasi;
     }
 
-    public function algoritmaGenetik($jumlahGenerasi, $jumlahIndividu, $jumlahJam, $jumlahHari, $jumlahRuangan) {
+    public function algoritmaGenetik($jumlahGenerasi, $jumlahIndividu, $jumlahKelas, $jumlahMatkul, $jumlahJam, $jumlahHari, $jumlahRuangan) {
         Log::info('Mulai Algoritma Genetik');
-        $populasi = $this->inisialisasiPopulasi($jumlahIndividu, $jumlahJam, $jumlahHari, $jumlahRuangan);
+        $populasi = $this->inisialisasiPopulasi($jumlahIndividu, $jumlahKelas, $jumlahMatkul, $jumlahJam, $jumlahHari, $jumlahRuangan);
 
         for ($generasi = 0; $generasi < $jumlahGenerasi; $generasi++) {
             Log::info('Generasi', ['generasi' => $generasi]);
@@ -204,17 +200,7 @@ class GeneticAlgorithm
         array_multisort($fitnessPopulasi, SORT_DESC, $populasi);
 
         Log::info('Algoritma Genetik Selesai');
-        $jadwalTerbaik = !empty($populasi) ? $populasi[0] : [];
-
-        // Simpan nilai fitness ke database
-        if (!empty($jadwalTerbaik)) {
-            $fitness = $this->evaluasiFitness($jadwalTerbaik);
-            foreach ($jadwalTerbaik as &$jadwal) {
-                $jadwal['fitness'] = $fitness;
-            }
-        }
-
-        return $jadwalTerbaik;
+        return !empty($populasi) ? $populasi[0] : [];
     }
 
     public function simpanJadwal($jadwalTerbaik) {

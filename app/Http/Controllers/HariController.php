@@ -13,7 +13,7 @@ class HariController extends Controller
     public function index()
     {
         $haris = hari::all();
-        return view('waktu.hari ', compact('haris'));
+        return view('admin.waktu.hari ', compact('haris'));
     }
 
     /**

@@ -17,6 +17,7 @@ class Jadwal extends Model
         'ruangan_id',
         'jam_id',
         'hari_id',
+        'fitness'
     ];
 
 

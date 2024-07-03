@@ -13,13 +13,12 @@ class PengampuController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-
     {
         $pengampus = Pengampu::all();
-    $matkuls = Matkul::all();
-    $dosens = Dosen::all();
+        $matkuls = Matkul::all();
+        $dosens = Dosen::all();
 
-        return view('pengampu.index',['pengampus' => $pengampus, 'matkuls' => $matkuls, 'dosens' => $dosens]);
+        return view('admin.pengampu.index', ['pengampus' => $pengampus, 'matkuls' => $matkuls, 'dosens' => $dosens]);
     }
 
     /**
@@ -70,7 +69,7 @@ class PengampuController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update( $request, Pengampu $pengampu)
+    public function update($request, Pengampu $pengampu)
     {
         //
     }

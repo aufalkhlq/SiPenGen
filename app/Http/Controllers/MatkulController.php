@@ -13,7 +13,7 @@ class MatkulController extends Controller
     public function index()
     {
         $matkuls = Matkul::all();
-        return view('matkul.index' , compact('matkuls'));
+        return view('admin.matkul.index' , compact('matkuls'));
     }
 
     /**

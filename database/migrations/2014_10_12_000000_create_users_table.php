@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('nim')->unique()->nullable(); // NIM unik untuk mahasiswa, nullable karena tidak semua user memilikinya
+            $table->string('role')->default('mahasiswa'); // Kolom role dengan default sebagai 'mahasiswa'
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
