@@ -27,8 +27,8 @@
                             <form id="login-form" action="{{ route('login.post') }}" method="post">
                                 @csrf
                                 <div class="form-group">
-                                    <label class="form-control-label">Email Address</label>
-                                    <input type="email" class="form-control" name="email">
+                                    <label class="form-control-label">Email atau NIM</label>
+                                    <input type="text" class="form-control" name="identifier">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-control-label">Password</label>
@@ -37,24 +37,9 @@
                                         <span class="fas fa-eye toggle-password"></span>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="cb1"
-                                                    name="remember">
-                                                <label class="custom-control-label" for="cb1">Remember me</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 text-end">
-                                            <a class="forgot-link" href="{{ url('forgot-password.html') }}">Forgot
-                                                Password ?</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-lg btn-block btn-primary w-100" type="submit"
-                                    id="login-button">Login</button>
+                                <button class="btn btn-lg btn-block btn-primary w-100" type="submit" id="login-button">Login</button>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -109,6 +94,7 @@
                                     button: "OK",
                                 })
                                 .then((value) => {
+                                    console.log(response.redirect); // Tambahkan log ini
                                     window.location.href = response.redirect;
 
                                 });

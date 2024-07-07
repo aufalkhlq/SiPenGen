@@ -3,14 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Dosen extends Model
+
+class Dosen extends Authenticatable
 {
     use HasFactory;
 
     protected $table = 'dosen';
-    protected $fillable = ['nama_dosen', 'nip', 'prodi'];
+
+    protected $fillable = [
+        'nama_dosen', 'nip', 'prodi', 'password',
+    ];
+
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    public function getAuthIdentifierName()
+    {
+        return 'nip';
+    }
+
+    public function getAuthIdentifier()
+    {
+        return $this->nip;
+    }
     public function pengampu()
     {
         return $this->hasMany(Pengampu::class);

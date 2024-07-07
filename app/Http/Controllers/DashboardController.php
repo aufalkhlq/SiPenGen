@@ -18,4 +18,9 @@ class DashboardController extends Controller
         $ruangans = Ruangan::count();
         return view('admin.dashboard.index',compact('users','dosens','matkuls','ruangans'));
     }
+
+    public function dosen(){
+
+        return view('dosen.dashboard.index');
+    }
 }

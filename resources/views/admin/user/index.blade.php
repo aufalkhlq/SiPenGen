@@ -21,30 +21,7 @@
             </div>
         </div>
 
-        <div class="card invoices-tabs-card">
-            <div class="card-body card-body pt-0 pb-0">
-                <div class="invoices-items-main-tabs">
-                    <div class="row align-items-center">
-                        <div class="col-lg-12 col-md-12">
-                            <div class="invoices-items-tabs">
-                                <ul>
-                                    <li>
-                                        <a href="{{ route('user') }}"
-                                            class="{{ request()->routeIs('user') ? 'active' : '' }}">All Users</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('user.dosen') }}">Dosen</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('user.mahasiswa') }}">Mahasiswa</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <div class="row mt-4">
             <div class="col-sm-12">
@@ -116,12 +93,10 @@
                             </div>
                             <div class="mb-3">
                                 <label for="role" class="form-label">Role</label>
-                                <select class="form-select" id="role" name="role" required>
-                                    <option selected disabled>Select Role</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="dosen">Dosen</option>
-                                    <option value="mahasiswa">Mahasiswa</option>
+                                <select class="form-select" id="role" name="role" disabled>
+                                    <option value="admin">Select Role</option>
                                 </select>
+                                <input type="hidden" name="role" value="admin">
                             </div>
                         </form>
                     </div>

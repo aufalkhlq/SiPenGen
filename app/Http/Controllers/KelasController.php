@@ -16,17 +16,6 @@ class KelasController extends Controller
         return view('admin.kelas.index', compact('kelas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -34,48 +23,53 @@ class KelasController extends Controller
             'tahun_angkatan' => 'required|numeric',
             'prodi' => 'required',
         ]);
+
         //create new kelas
-        $kelas = Kelas::create([
+        Kelas::create([
             'nama_kelas' => $request->nama_kelas,
             'tahun_angkatan' => $request->tahun_angkatan,
             'prodi' => $request->prodi,
         ]);
+
         return response()->json([
-            'success' => 'kelas created successfully',
+            'success' => 'Kelas created successfully',
             'redirect' => route('kelas'),
         ]);
-
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Kelas $kelas)
+    public function edit($id)
     {
-        //
+        $kelas = Kelas::find($id);
+        return response()->json($kelas);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Kelas $kelas)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nama_kelas' => 'required',
+            'tahun_angkatan' => 'required|numeric',
+            'prodi' => 'required',
+        ]);
+
+        $kelas = Kelas::find($id);
+
+        $kelas->nama_kelas = $request->nama_kelas;
+        $kelas->tahun_angkatan = $request->tahun_angkatan;
+        $kelas->prodi = $request->prodi;
+
+        $kelas->save();
+
+        return response()->json([
+            'success' => 'Kelas updated successfully',
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Kelas $kelas)
+    public function destroy($id)
     {
-        //
-    }
+        Kelas::destroy($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Kelas $kelas)
-    {
-        //
+        return response()->json([
+            'success' => 'Kelas deleted successfully',
+        ]);
     }
 }

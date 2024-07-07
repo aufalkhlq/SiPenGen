@@ -16,7 +16,7 @@ class GeneticAlgorithm
         Log::info('Inisialisasi Populasi');
         $populasi = [];
 
-        $jumlahKelas = Kelas::count();
+        $kelasList = Kelas::all();
         $pengampus = Pengampu::with('matkul')->get();
 
         for ($i = 0; $i < $jumlahIndividu; $i++) {
@@ -24,8 +24,8 @@ class GeneticAlgorithm
             $individu = [];
             $jadwalMap = []; // Untuk cek konflik
 
-            for ($j = 0; $j < $jumlahKelas; $j++) {
-                Log::info("Inisialisasi Kelas", ['kelas' => $j + 1]);
+            foreach ($kelasList as $kelas) {
+                Log::info("Inisialisasi Kelas", ['kelas' => $kelas->id]);
                 foreach ($pengampus as $pengampu) {
                     Log::info("Inisialisasi Matkul", ['matkul' => $pengampu->matkul->id]);
                     $matkul = $pengampu->matkul;
@@ -36,14 +36,14 @@ class GeneticAlgorithm
                         $attempts = 0;
                         $maxAttempts = 100; // Batasi jumlah percobaan
                         do {
-                            $jadwal = $this->buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $j + 1, $pengampu->id, $jadwalMap);
+                            $jadwal = $this->buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $kelas->id, $pengampu->id, $jadwalMap);
                             $attempts++;
                         } while (!$jadwal && $attempts < $maxAttempts);
 
                         if ($jadwal) {
                             $individu[] = $jadwal;
                         } else {
-                            Log::warning("Gagal inisialisasi jadwal setelah $maxAttempts percobaan untuk kelas " . ($j + 1) . " matkul " . $matkul->id . " sks loop $s");
+                            Log::warning("Gagal inisialisasi jadwal setelah $maxAttempts percobaan untuk kelas " . $kelas->id . " matkul " . $matkul->id . " sks loop $s");
                         }
                     }
                 }
@@ -220,7 +220,21 @@ class GeneticAlgorithm
     public function simpanJadwal($jadwalTerbaik) {
         Log::info('Simpan Jadwal Terbaik');
         foreach ($jadwalTerbaik as $jadwal) {
-            Jadwal::create($jadwal);
+            try {
+                $kelasExists = Kelas::find($jadwal['kelas_id']);
+                $pengampuExists = Pengampu::find($jadwal['pengampu_id']);
+                $ruanganExists = Ruangan::find($jadwal['ruangan_id']);
+                $jamExists = Jam::find($jadwal['jam_id']);
+                $hariExists = Hari::find($jadwal['hari_id']);
+
+                if ($kelasExists && $pengampuExists && $ruanganExists && $jamExists && $hariExists) {
+                    Jadwal::create($jadwal);
+                } else {
+                    Log::warning('Foreign key constraint violation: ', $jadwal);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to save schedule: ' . $e->getMessage(), $jadwal);
+            }
         }
     }
 }

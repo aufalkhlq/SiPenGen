@@ -1,56 +1,95 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User;
+use App\Models\Mahasiswa;
+use App\Models\Dosen;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 class AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return view('auth.login');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function login(Request $request)
     {
         $validate = $request->validate([
-            'email' => 'required|email',
+            'identifier' => 'required',
             'password' => 'required'
-
         ]);
 
-        if (auth()->attempt($validate)) {
-            $user = Auth::user();
-            if ($user->role == 'admin') {
-                return response()->json([
-                    'success' => 'Welcome to the dashboard',
-                    'redirect' => route('dashboard'),
-                ]);
-            } elseif ($user->role == 'mahasiswa') {
-                return response()->json([
-                    'success' => 'Welcome to the dashboard',
-                    'redirect' => route('mahasiswa.dashboard'),
-                ]);
+        $identifier = $validate['identifier'];
+        $password = $validate['password'];
+
+        // Login as user using email
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            if (Auth::guard('web')->attempt(['email' => $identifier, 'password' => $password])) {
+                $user = Auth::guard('web')->user();
+                return $this->redirectUser($user);
+            }
+        } else {
+            // Login as dosen using NIP first
+            $dosen = Dosen::where('nip', $identifier)->first();
+            if ($dosen && Hash::check($password, $dosen->password)) {
+                Auth::guard('dosen')->login($dosen);
+                return $this->redirectUser($dosen);
             }
 
-        } else {
-            return response()->json([
-                'error' => 'Invalid Email or Password details',
-            ], Response::HTTP_UNPROCESSABLE_ENTITY); // Return HTTP status code 422 for unprocessable entity
+            // If not dosen, then check mahasiswa using NIM
+            $mahasiswa = Mahasiswa::where('nim', $identifier)->first();
+            if ($mahasiswa && Hash::check($password, $mahasiswa->password)) {
+                Auth::guard('mahasiswa')->login($mahasiswa);
+                return $this->redirectUser($mahasiswa);
+            }
         }
+
+        return response()->json([
+            'error' => 'Invalid Email/NIM/NIP or Password details',
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    protected function redirectUser($user)
+    {
+        if ($user instanceof User) {
+            if ($user->role == 'admin') {
+                return response()->json([
+                    'success' => 'Welcome to the admin dashboard',
+                    'redirect' => route('dashboard'),
+                ]);
+            }
+        } elseif ($user instanceof Mahasiswa) {
+            \Log::info('Redirecting mahasiswa to dashboard: ' . $user->name);
+            return response()->json([
+                'success' => 'Welcome to the mahasiswa dashboard',
+                'redirect' => route('mahasiswa.dashboard'),
+            ]);
+        } elseif ($user instanceof Dosen) {
+            \Log::info('Redirecting dosen to dashboard: ' . $user->name);
+            return response()->json([
+                'success' => 'Welcome to the dosen dashboard',
+                'redirect' => route('dosen.dashboard'),
+            ]);
+        }
+
+        return response()->json([
+            'error' => 'Unauthorized',
+        ], Response::HTTP_UNAUTHORIZED);
     }
 
     public function logout()
     {
-        auth()->logout();
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        } elseif (Auth::guard('mahasiswa')->check()) {
+            Auth::guard('mahasiswa')->logout();
+        } elseif (Auth::guard('dosen')->check()) {
+            Auth::guard('dosen')->logout();
+        }
         return redirect()->route('login');
     }
 }

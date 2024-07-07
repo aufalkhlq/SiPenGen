@@ -132,4 +132,21 @@ class JadwalController extends Controller
 
         return response()->json($schedule);
     }
+    public function delete() {
+        try {
+            Jadwal::truncate(); // Delete all records
+            return redirect()->route('jadwal')->with('success', 'All schedules deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('jadwal')->with('error', 'Failed to delete schedules: ' . $e->getMessage());
+        }
+    }
+
+
+
+    public function printPDF() {
+        $jadwals = Jadwal::with(['pengampu.dosen', 'pengampu.matkul', 'ruangan', 'jam', 'hari', 'kelas'])->get();
+
+        $pdf = \PDF::loadView('admin.jadwal.pdf', compact('jadwals'));
+        return $pdf->download('jadwal.pdf');
+    }
 }

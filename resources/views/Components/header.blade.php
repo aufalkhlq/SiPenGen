@@ -29,7 +29,13 @@
                     <img src="assets/img/profiles/avatar-01.jpg" alt="">
                     <span class="status online"></span>
                 </span>
-                <span><b>{{ Auth::user()->name }}</b></span>
+                <span><b> @if(Auth::guard('mahasiswa')->check())
+                    {{ Auth::guard('mahasiswa')->user()->nama_mahasiswa }}
+                @elseif(Auth::guard('dosen')->check())
+                    {{ Auth::guard('dosen')->user()->nama_dosen }}
+                @elseif(Auth::check())
+                    {{ Auth::user()->name }}
+                @endif</b></span>
             </a>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="profile.html"><i data-feather="user" class="me-1"></i>

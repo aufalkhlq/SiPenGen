@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengampu', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('dosen_id')->constrained('dosen')->onDelete('cascade');
-            $table->foreignId('matkul_id')->constrained('matkul')->onDelete('cascade');
-            $table->timestamps();
+        Schema::table('dosen', function (Blueprint $table) {
+            $table->string('role')->default('dosen');
+            $table->string('password')->default(bcrypt('Polines2024'));
         });
     }
 
@@ -24,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengampu');
+        Schema::table('dosen', function (Blueprint $table) {
+
+        });
     }
 };

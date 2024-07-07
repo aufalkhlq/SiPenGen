@@ -13,6 +13,9 @@
             <li class="{{ request()->routeIs('dosen') ? 'active' : '' }}">
                 <a href="{{ route('dosen') }}"><i data-feather="user"></i> <span>Dosen</span></a>
             </li>
+            <li class="{{ request()->routeIs('mahasiswa') ? 'active' : '' }}">
+                <a href="{{ route('mahasiswa') }}"><i data-feather="user"></i> <span>Mahasiswa</span></a>
+            </li>
             <li class="{{ request()->routeIs('kelas') ? 'active' : '' }}">
                 <a href="{{ route('kelas') }}"><i data-feather="home"></i> <span>Kelas</span></a>
             </li>
@@ -47,6 +50,12 @@
                 <a href="{{ route('mahasiswa.jadwal') }}"><i data-feather="home"></i> <span>Jadwal</span></a>
             </li>
 
+            @endif
+            @if(auth()->user()->role == 'dosen')
+            <li class="menu-title"><span><b>Master Penjadwalan</b></span></li>
+            <li class="{{ request()->routeIs('dosen.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('dosen.dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
+            </li>
             @endif
         </ul>
     </div>

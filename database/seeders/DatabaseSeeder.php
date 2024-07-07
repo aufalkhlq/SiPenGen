@@ -41,23 +41,11 @@ class DatabaseSeeder extends Seeder
         $admin = User::create([
             'name' => 'admin',
             'email' => 'admin@gmail.com',
+            'role' => 'admin',
             'password' => bcrypt('password'),
         ]);
         $admin->assignRole($adminRole);
 
-        $academicstaff = User::create([
-            'name' => 'academic staff',
-            'email' => 'academicstaff@gmail.com',
-            'password' => bcrypt('academicstaff'),
-        ]);
-        $academicstaff->assignRole($academicStaffRole);
 
-        $participant = User::create([
-            'name' => 'participant',
-            'email' => 'participant@gmail.com',
-            'password' => bcrypt('participant'),
-        ]);
-        $participant->assignRole($participantRole);
-    
     }
 }

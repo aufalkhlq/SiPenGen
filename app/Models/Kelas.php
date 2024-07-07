@@ -11,4 +11,9 @@ class Kelas extends Model
 
     protected $table = 'kelas';
     protected $fillable = ['nama_kelas', 'tahun_angkatan', 'prodi'];
+
+    public function jadwal()
+    {
+        return $this->hasMany(Jadwal::class);
+    }
 }

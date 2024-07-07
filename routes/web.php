@@ -24,7 +24,7 @@ Route::controller('App\Http\Controllers\AuthController')->group(function(){
 });
 
 // Dashboard
-Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
+Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
     Route::controller('App\Http\Controllers\DashboardController')->group(function(){
         Route::get('/', 'index')->name('dashboard');
     });
@@ -48,6 +48,14 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
         Route::put('/dosen/{dosen}', 'update')->name('dosen.update');
         Route::delete('/dosen/{dosen}', 'delete')->name('dosen.delete');
     });
+    // mahsiswa
+    Route::controller('App\Http\Controllers\MahasiswaController')->group(function(){
+        Route::get('/mahasiswa', 'index')->name('mahasiswa');
+        Route::post('/mahasiswa', 'store')->name('mahasiswa.store');
+        Route::get('/mahasiswa/{mahasiswa}/edit', 'edit')->name('mahasiswa.edit');
+        Route::put('/mahasiswa/{mahasiswa}', 'update')->name('mahasiswa.update');
+        Route::delete('/mahasiswa/{mahasiswa}', 'delete')->name('mahasiswa.delete');
+    });
     // kelas
     Route::controller('App\Http\Controllers\KelasController')->group(function(){
         Route::get('/kelas', 'index')->name('kelas');
@@ -55,7 +63,7 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
         Route::get('/kelas/{kelas}', 'show')->name('kelas.show');
         Route::get('/kelas/{kelas}/edit', 'edit')->name('kelas.edit');
         Route::put('/kelas/{kelas}', 'update')->name('kelas.update');
-        Route::delete('/kelas/{kelas}', 'delete')->name('kelas.delete');
+        Route::delete('/kelas/{kelas}', 'destroy')->name('kelas.destroy');
     });
 
     // ruangan
@@ -75,7 +83,7 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
         Route::get('/matkul/{matkul}', 'show')->name('matkul.show');
         Route::get('/matkul/{matkul}/edit', 'edit')->name('matkul.edit');
         Route::put('/matkul/{matkul}', 'update')->name('matkul.update');
-        Route::delete('/matkul/{matkul}', 'delete')->name('matkul.delete');
+        Route::delete('/matkul/{matkul}', 'destroy')->name('matkul.destroy');
     });
 
     //jam
@@ -104,10 +112,8 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
         Route::post('/jadwal', 'store')->name('jadwal.store');
         Route::post('/generate', 'generateSchedule')->name('jadwal.generate');
         Route::get('/jadwal/conflicts',  'checkConflicts')->name('jadwal.conflicts');
-        Route::get('/jadwal/{jadwal}', 'show')->name('jadwal.show');
-        Route::get('/jadwal/{jadwal}/edit', 'edit')->name('jadwal.edit');
-        Route::put('/jadwal/{jadwal}', 'update')->name('jadwal.update');
-        Route::delete('/jadwal/{jadwal}', 'delete')->name('jadwal.delete');
+        Route::delete('/jadwal/delete}', 'delete')->name('jadwal.delete');
+        Route::get('/jadwal/printpdf', 'printPDF')->name('jadwal.printpdf');
         Route::get('/jadwal/status', 'status')->name('jadwal.status');
     });
 
@@ -126,14 +132,22 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
 
 });
 
-Route::group(['middleware' => ['auth', 'checkRole:mahasiswa'], 'prefix' => 'mahasiswa'], function () {
-    Route::controller('App\Http\Controllers\mahasiswa\DashboardController')->group(function () {
+Route::group(['middleware' => ['auth:mahasiswa', 'checkRole:mahasiswa'], 'prefix' => 'mahasiswa'], function () {
+    Route::controller('App\Http\Controllers\Mahasiswa\DashboardController')->group(function () {
         Route::get('/dashboard', 'index')->name('mahasiswa.dashboard');
     });
     Route::controller('App\Http\Controllers\mahasiswa\JadwalController')->group(function () {
         Route::get('/jadwal', 'index')->name('mahasiswa.jadwal');
+        Route::get('/jadwal/data', 'getScheduleByClass')->name('jadwal.getScheduleByClass');
+
     });
 
+
+});
+Route::group(['middleware' => ['auth:dosen', 'checkRole:dosen']], function () {
+    Route::controller('App\Http\Controllers\Dosen\DashboardController')->group(function () {
+        Route::get('/dashboard/dosen', 'index')->name('dosen.dashboard');
+    });
 
 });
 
