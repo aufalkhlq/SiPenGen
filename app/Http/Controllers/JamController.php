@@ -41,7 +41,8 @@ class JamController extends Controller
         return response()->json(['success' => 'Hour updated successfully']);
     }
 
-    public function destroy(Jam $jam)
+
+    public function delete(Jam $jam)
     {
         $jam->delete();
         return response()->json(['success' => 'Hour deleted successfully']);

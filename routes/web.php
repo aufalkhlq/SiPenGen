@@ -137,8 +137,7 @@ Route::group(['middleware' => ['auth:mahasiswa', 'checkRole:mahasiswa'], 'prefix
         Route::get('/dashboard', 'index')->name('mahasiswa.dashboard');
     });
     Route::controller('App\Http\Controllers\mahasiswa\JadwalController')->group(function () {
-        Route::get('/jadwal', 'index')->name('mahasiswa.jadwal');
-        Route::get('/jadwal/data', 'getScheduleByClass')->name('jadwal.getScheduleByClass');
+        Route::get('/jadwal/', 'index')->name('mahasiswa.jadwal');
 
     });
 
@@ -149,6 +148,11 @@ Route::group(['middleware' => ['auth:dosen', 'checkRole:dosen']], function () {
         Route::get('/dashboard/dosen', 'index')->name('dosen.dashboard');
     });
 
+    Route::controller('App\Http\Controllers\Dosen\JadwalController')->group(function () {
+        Route::get('/jadwal/dosen', 'index')->name('dosen.jadwal');
+
+
+    });
 });
 
 

@@ -10,23 +10,24 @@
     <div class="cd-schedule__timeline">
         <ul>
             <li><span>07:00</span></li>
-            <li><span>07:40</span></li>
-            <li><span>08:20</span></li>
-            <li><span>09:00</span></li>
-            <li><span>09:40</span></li>
-            <li><span>10:20</span></li>
-            <li><span>11:00</span></li>
-            <li><span>11:40</span></li>
-            <li><span>12:20</span></li>
+            <li><span>07:45</span></li>
+            <li><span>08:30</span></li>
+            <li><span>09:15</span></li>
+            <li><span>10:00</span></li>
+            <li><span>10:45</span></li>
+            <li><span>11:30</span></li>
+            <li><span>12:15</span></li>
             <li><span>13:00</span></li>
-            <li><span>13:40</span></li>
-            <li><span>14:20</span></li>
+            <li><span>13:30</span></li>
+            <li><span>14:00</span></li>
+            <li><span>14:30</span></li>
             <li><span>15:00</span></li>
-            <li><span>15:40</span></li>
-            <li><span>16:20</span></li>
+            <li><span>15:30</span></li>
+            <li><span>16:00</span></li>
+            <li><span>16:30</span></li>
             <li><span>17:00</span></li>
-            <li><span>17:40</span></li>
-            <li><span>18:20</span></li>
+            <li><span>17:30</span></li>
+            <li><span>18:00</span></li>
         </ul>
     </div>
 

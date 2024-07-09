@@ -56,6 +56,9 @@
             <li class="{{ request()->routeIs('dosen.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('dosen.dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
             </li>
+            <li class="{{ request()->routeIs('dosen.jadwal') ? 'active' : '' }}">
+                <a href="{{ route('dosen.jadwal') }}"><i data-feather="home"></i> <span>Jadwal</span></a>
+            </li>
             @endif
         </ul>
     </div>

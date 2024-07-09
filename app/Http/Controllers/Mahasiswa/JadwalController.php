@@ -45,8 +45,12 @@ class JadwalController extends Controller
                     // Mengonversi waktu mulai dan waktu selesai
                     $convertedTimes = $this->convertTimeRange($jadwal->jam->waktu);
 
+                    // Mengonversi title ke dalam array titles
+                    $titles = [];
+                    $titles[] = $jadwal->pengampu->matkul->nama_matkul;
+
                     $eventsByDay[$day][] = [
-                        'title' => $jadwal->pengampu->matkul->nama_matkul,
+                        'title' => implode(', ', $titles),
                         'start' => $convertedTimes['start'], // Waktu mulai
                         'end' => $convertedTimes['end'], // Waktu selesai
                         'ruangan' => $jadwal->ruangan->nama_ruangan
@@ -59,5 +63,4 @@ class JadwalController extends Controller
 
         return view('mahasiswa.jadwal.index', compact('eventsByDay', 'jams'));
     }
-    
 }

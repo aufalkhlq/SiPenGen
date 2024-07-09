@@ -34,7 +34,7 @@ class Dosen extends Authenticatable
         return $this->hasMany(Pengampu::class);
     }
 
-    public function jadwal()
+    public function jadwals()
     {
         return $this->hasMany(Jadwal::class);
     }

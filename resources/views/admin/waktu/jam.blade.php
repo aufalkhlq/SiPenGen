@@ -91,7 +91,8 @@
                     </div>
                 </div>
 
-                {{--  Edit jam Modal --}}
+
+                <!-- Edit jam Modal -->
                 <div class="modal fade" id="editjamModal" tabindex="-1" aria-labelledby="editjamModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
@@ -106,11 +107,11 @@
                                     @csrf
                                     <div class="mb-3">
                                         <label for="edit-jam" class="form-label">Jam Ke</label>
-                                        <input type="text" class="form-control" id="edit-jam" name="edit-jam" required>
+                                        <input type="text" class="form-control" id="edit-jam" name="jam" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="edit-waktu" class="form-label">Waktu</label>
-                                        <input type="text" class="form-control" id="edit-waktu" name="edit-waktu"
+                                        <input type="text" class="form-control" id="edit-waktu" name="waktu"
                                             required>
                                     </div>
 
@@ -124,6 +125,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -141,7 +143,7 @@
                     data: $('#add-jam-form').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            swal.fire.fire({
+                            swal.fire({
                                 title: "Success!",
                                 text: response.success,
                                 icon: "success",
@@ -151,6 +153,23 @@
                             });
                         }
                     },
+                    error: function(response) {
+                        if (response.responseJSON.errors) {
+                            let errorMsg = '';
+                            Object.values(response.responseJSON.errors).forEach((
+                            errorArray) => {
+                                errorArray.forEach((error) => {
+                                    errorMsg += error + ' ';
+                                });
+                            });
+                            swal.fire({
+                                title: "Error!",
+                                text: errorMsg,
+                                icon: "error",
+                                button: "OK",
+                            });
+                        }
+                    }
                 });
             });
             // edit jam
@@ -168,6 +187,7 @@
                     }
                 });
             });
+            // update jam
             // update jam
             $('#update-jam-button').click(function(e) {
                 e.preventDefault();
@@ -188,19 +208,17 @@
                         }
                     },
                     error: function(response) {
-                        if (response.responseJSON.errors && response.responseJSON.errors
-                            .email) {
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors.email[0],
-                                icon: "error",
-                                button: "OK",
+                        if (response.responseJSON.errors) {
+                            let errorMsg = '';
+                            Object.values(response.responseJSON.errors).forEach((
+                                errorArray) => {
+                                errorArray.forEach((error) => {
+                                    errorMsg += error + ' ';
+                                });
                             });
-                        } else if (response.responseJSON.errors) {
-                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
                             swal.fire({
                                 title: "Error!",
-                                text: response.responseJSON.errors[firstErrorKey][0],
+                                text: errorMsg,
                                 icon: "error",
                                 button: "OK",
                             });
@@ -214,14 +232,14 @@
                 e.preventDefault();
                 var id = $(this).data('id');
                 swal.fire({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this user!",
-                    icon: "warning",
-                    showCancelButton: true, // This needs to be true to show the cancel button.
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel!',
+                        title: "Are you sure?",
+                        text: "Once deleted, you will not be able to recover this user!",
+                        icon: "warning",
+                        showCancelButton: true, // This needs to be true to show the cancel button.
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'No, cancel!',
                     })
                     .then((willDelete) => {
                         if (willDelete) {
@@ -261,5 +279,4 @@
             });
         });
     </script>
-
 @endpush

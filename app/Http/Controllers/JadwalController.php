@@ -143,10 +143,14 @@ class JadwalController extends Controller
 
 
 
-    public function printPDF() {
-        $jadwals = Jadwal::with(['pengampu.dosen', 'pengampu.matkul', 'ruangan', 'jam', 'hari', 'kelas'])->get();
+    public function printPDF(Request $request) {
+        $jadwals = Jadwal::with(['pengampu.dosen', 'pengampu.matkul', 'ruangan', 'jam', 'hari', 'kelas'])
+                        ->orderBy('kelas_id')
+                        ->get();
 
-        $pdf = \PDF::loadView('admin.jadwal.pdf', compact('jadwals'));
+        $kelas = Kelas::all(); // Get all classes
+
+        $pdf = \PDF::loadView('admin.jadwal.pdf', compact('jadwals', 'kelas'));
         return $pdf->download('jadwal.pdf');
     }
 }
