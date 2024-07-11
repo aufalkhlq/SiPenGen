@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
         Route::get('/ruangan/{ruangan}', 'show')->name('ruangan.show');
         Route::get('/ruangan/{ruangan}/edit', 'edit')->name('ruangan.edit');
         Route::put('/ruangan/{ruangan}', 'update')->name('ruangan.update');
-        Route::delete('/ruangan/{ruangan}', 'delete')->name('ruangan.delete');
+        Route::delete('/ruangan/{ruangan}', 'destroy')->name('ruangan.destroy');
     });
 
     // matkul
@@ -125,6 +125,8 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
         Route::get('/pengampu/{pengampu}/edit', 'edit')->name('pengampu.edit');
         Route::put('/pengampu/{pengampu}', 'update')->name('pengampu.update');
         Route::delete('/pengampu/{pengampu}', 'delete')->name('pengampu.delete');
+        Route::delete('/pengampu/deleteAll', 'deleteAll')->name('pengampu.deleteAll');
+
     });
     // Route::controller('App\Http\Controllers\HomeController')->group(function(){
     //     route::get('/home', 'index')->name('home');
@@ -138,7 +140,11 @@ Route::group(['middleware' => ['auth:mahasiswa', 'checkRole:mahasiswa'], 'prefix
     });
     Route::controller('App\Http\Controllers\mahasiswa\JadwalController')->group(function () {
         Route::get('/jadwal/', 'index')->name('mahasiswa.jadwal');
+        Route::get('/jadwal/cetak', 'printPDF')->name('jadwal.cetak');
 
+    });
+    Route::controller('App\Http\Controllers\mahasiswa\MatkulController')->group(function () {
+        Route::get('/matkul/', 'index')->name('mahasiswa.matkul');
     });
 
 
@@ -150,8 +156,11 @@ Route::group(['middleware' => ['auth:dosen', 'checkRole:dosen']], function () {
 
     Route::controller('App\Http\Controllers\Dosen\JadwalController')->group(function () {
         Route::get('/jadwal/dosen', 'index')->name('dosen.jadwal');
+        Route::get('/jadwal/dosen/cetak', 'printPDF')->name('dosen.jadwalcetak');
 
-
+    });
+    Route::controller('App\Http\Controllers\Dosen\MatkulController')->group(function () {
+        Route::get('/dosen/matkul/daftar-matkul/', 'index')->name('dosen.matkul');
     });
 });
 

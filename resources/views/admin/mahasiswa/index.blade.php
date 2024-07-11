@@ -182,157 +182,158 @@
 @endsection
 
 @push('script')
-    <script>
-        $(document).ready(function() {
-            $('#save-mahasiswa-button').click(function(e) {
-                e.preventDefault();
-                if (!$('#nama_mahasiswa').val() || !$('#nim').val()) {
-                    Swal.fire({
-                        title: "Error!",
-                        text: "Nama mahasiswa and nim are required.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                    return;
-                }
-                if (!$('#prodi').val()) {
-                    Swal.fire({
-                        title: "Error!",
-                        text: "Silahkan Pilih Salah Satu Prodi.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route('mahasiswa.store') }}',
-                    data: $('#add-mahasiswa-form').serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: "Success!",
-                                text: response.success,
-                                icon: "success",
-                                button: "OK",
-                            }).then((value) => {
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function(response) {
-                        if (response.responseJSON.errors) {
-                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            Swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors[firstErrorKey][0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        }
-                    }
-                });
-            });
-
-            // edit mahasiswa
-            $('.edit-btn').click(function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                $.ajax({
-                    type: 'GET',
-                    url: '/mahasiswa/' + id + '/edit',
-                    success: function(response) {
-                        $('#edit-nama_mahasiswa').val(response.nama_mahasiswa);
-                        $('#edit-nim').val(response.nim);
-                        $('#edit-prodi').val(response.prodi);
-                        $('#edit-kelas_id').val(response.kelas_id);
-                        $('#edit-id').val(response.id);
-                        $('#editmahasiswaModal').modal('show');
-                    }
-                });
-            });
-
-            // update mahasiswa
-            $('#update-mahasiswa-button').click(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'PUT',
-                    url: '/mahasiswa/' + $('#edit-id').val(),
-                    data: $('#edit-mahasiswa-form').serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: "Success!",
-                                text: response.success,
-                                icon: "success",
-                                button: "OK",
-                            }).then((value) => {
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function(response) {
-                        if (response.responseJSON.errors) {
-                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            Swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors[firstErrorKey][0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        }
-                    }
-                });
-            });
-
-            // delete mahasiswa
-            $('.delete-btn').click(function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
+<script>
+    $(document).ready(function() {
+        $('#save-mahasiswa-button').click(function(e) {
+            e.preventDefault();
+            if (!$('#nama_mahasiswa').val() || !$('#nim').val()) {
                 Swal.fire({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this user!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel!',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: 'DELETE',
-                            url: '/mahasiswa/' + id,
-                            data: {
-                                '_token': $('input[name=_token]').val(),
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    Swal.fire({
-                                        title: "Deleted!",
-                                        text: response.success,
-                                        icon: "success",
-                                        button: "OK",
-                                    }).then((value) => {
-                                        location.reload();
-                                    });
-                                }
-                            },
-                            error: function(response) {
-                                if (response.responseJSON.error) {
-                                    Swal.fire({
-                                        title: "Error!",
-                                        text: response.responseJSON.error,
-                                        icon: "error",
-                                        button: "OK",
-                                    });
-                                }
-                            }
+                    title: "Error!",
+                    text: "Nama mahasiswa and nim are required.",
+                    icon: "error",
+                    button: "OK",
+                });
+                return;
+            }
+            if (!$('#prodi').val()) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Silahkan Pilih Salah Satu Prodi.",
+                    icon: "error",
+                    button: "OK",
+                });
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('mahasiswa.store') }}',
+                data: $('#add-mahasiswa-form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: response.success,
+                            icon: "success",
+                            button: "OK",
+                        }).then((value) => {
+                            location.reload();
                         });
                     }
-                });
+                },
+                error: function(response) {
+                    if (response.responseJSON.errors) {
+                        const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                        Swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors[firstErrorKey][0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                }
             });
         });
-    </script>
+
+        // Use event delegation for edit and delete buttons
+        $(document).on('click', '.edit-btn', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            $.ajax({
+                type: 'GET',
+                url: '/mahasiswa/' + id + '/edit',
+                success: function(response) {
+                    $('#edit-nama_mahasiswa').val(response.nama_mahasiswa);
+                    $('#edit-nim').val(response.nim);
+                    $('#edit-prodi').val(response.prodi);
+                    $('#edit-kelas_id').val(response.kelas_id);
+                    $('#edit-id').val(response.id);
+                    $('#editmahasiswaModal').modal('show');
+                }
+            });
+        });
+
+        // update mahasiswa
+        $('#update-mahasiswa-button').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'PUT',
+                url: '/mahasiswa/' + $('#edit-id').val(),
+                data: $('#edit-mahasiswa-form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: response.success,
+                            icon: "success",
+                            button: "OK",
+                        }).then((value) => {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(response) {
+                    if (response.responseJSON.errors) {
+                        const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                        Swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors[firstErrorKey][0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                }
+            });
+        });
+
+        // delete mahasiswa
+        $(document).on('click', '.delete-btn', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this user!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: '/mahasiswa/' + id,
+                        data: {
+                            '_token': $('input[name=_token]').val(),
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: response.success,
+                                    icon: "success",
+                                    button: "OK",
+                                }).then((value) => {
+                                    location.reload();
+                                });
+                            }
+                        },
+                        error: function(response) {
+                            if (response.responseJSON.error) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: response.responseJSON.error,
+                                    icon: "error",
+                                    button: "OK",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
 @endpush
+

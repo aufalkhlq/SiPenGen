@@ -157,7 +157,73 @@
 @push('script')
 <script>
     $(document).ready(function() {
-        $('#save-dosen-button').click(function(e) {
+        function bindActions() {
+            $('.edit-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                $.ajax({
+                    type: 'GET',
+                    url: '/dosen/' + id + '/edit',
+                    success: function(response) {
+                        $('#edit-nama_dosen').val(response.nama_dosen);
+                        $('#edit-nip').val(response.nip);
+                        $('#edit-prodi').val(response.prodi);
+                        $('#edit-id').val(response.id);
+                        $('#editDosenModal').modal('show');
+                    }
+                });
+            });
+
+            $('.delete-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "Once deleted, you will not be able to recover this user!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '/dosen/' + id,
+                            data: {
+                                '_token': $('input[name=_token]').val(),
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: "Deleted!",
+                                        text: response.success,
+                                        icon: "success",
+                                        button: "OK",
+                                    }).then((value) => {
+                                        location.reload();
+                                    });
+                                }
+                            },
+                            error: function(response) {
+                                if (response.responseJSON.error) {
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: response.responseJSON.error,
+                                        icon: "error",
+                                        button: "OK",
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        // Bind save dosen button
+        $('#save-dosen-button').off('click').on('click', function(e) {
             e.preventDefault();
             if (!$('#nama_dosen').val() || !$('#nip').val()) {
                 Swal.fire({
@@ -197,25 +263,8 @@
             });
         });
 
-        // edit dosen
-        $('.edit-btn').click(function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            $.ajax({
-                type: 'GET',
-                url: '/dosen/' + id + '/edit',
-                success: function(response) {
-                    $('#edit-nama_dosen').val(response.nama_dosen);
-                    $('#edit-nip').val(response.nip);
-                    $('#edit-prodi').val(response.prodi);
-                    $('#edit-id').val(response.id);
-                    $('#editDosenModal').modal('show');
-                }
-            });
-        });
-
-        // update dosen
-        $('#update-dosen-button').click(function(e) {
+        // Bind update dosen button
+        $('#update-dosen-button').off('click').on('click', function(e) {
             e.preventDefault();
             $.ajax({
                 type: 'PUT',
@@ -247,53 +296,14 @@
             });
         });
 
-        // delete dosen
-        $('.delete-btn').click(function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this user!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'No, cancel!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: 'DELETE',
-                        url: '/dosen/' + id,
-                        data: {
-                            '_token': $('input[name=_token]').val(),
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: response.success,
-                                    icon: "success",
-                                    button: "OK",
-                                }).then((value) => {
-                                    location.reload();
-                                });
-                            }
-                        },
-                        error: function(response) {
-                            if (response.responseJSON.error) {
-                                Swal.fire({
-                                    title: "Error!",
-                                    text: response.responseJSON.error,
-                                    icon: "error",
-                                    button: "OK",
-                                });
-                            }
-                        }
-                    });
-                }
-            });
+        // Re-bind actions on page change
+        $('.datatable').on('draw.dt', function() {
+            bindActions();
         });
+
+        // Initial call to bind actions
+        bindActions();
     });
 </script>
 @endpush
+

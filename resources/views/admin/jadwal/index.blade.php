@@ -85,9 +85,8 @@
                                     @php
                                         $hasConflict = false;
                                         foreach ($conflicts as $conflict) {
-                                            if ($conflict['kelas1'] == $item->kelas->nama_kelas &&
-                                                $conflict['hari1'] == $item->hari->hari &&
-                                                $conflict['jam1'] == $item->jam->waktu) {
+                                            if (($conflict['kelas1'] == $item->kelas->nama_kelas && $conflict['hari1'] == $item->hari->hari && $conflict['jam1'] == $item->jam->waktu) ||
+                                                ($conflict['kelas2'] == $item->kelas->nama_kelas && $conflict['hari2'] == $item->hari->hari && $conflict['jam2'] == $item->jam->waktu)) {
                                                 $hasConflict = true;
                                                 break;
                                             }
@@ -277,6 +276,9 @@
             $('#conflict-table-body').html(content);
             $('#conflictModal').modal('show');
 
+            // Highlight conflicts in the main table
+            highlightConflicts(data.conflicts);
+
         } catch (error) {
             Swal.fire({
                 icon: 'error',
@@ -286,6 +288,7 @@
             });
         }
     }
+
     function highlightConflicts(conflicts) {
         const rows = document.querySelectorAll('.datatable tbody tr');
         rows.forEach(row => {
@@ -302,6 +305,7 @@
             });
         });
     }
+
     $('#delete-button').on('click', function(e) {
         e.preventDefault();
         Swal.fire({

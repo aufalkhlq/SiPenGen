@@ -2,208 +2,197 @@
 
 namespace App\Genetik;
 
-use App\Models\Kelas;
 use App\Models\Pengampu;
-use App\Models\Jadwal;
-use App\Models\Ruangan;
 use App\Models\Jam;
 use App\Models\Hari;
-use DB;
+use App\Models\Ruangan;
+use App\Models\Jadwal;
 
 class GeneticAlgorithm
 {
-    private $kelas;
-    private $pengampu;
-    private $jadwal;
-    private $ruangan;
-    private $jam;
-    private $hari;
+    private $populasi;
+    private $generasi;
+    private $crossoverRate;
+    private $mutationRate;
+    private $individu = [];
+    private $pengampu = [];
+    private $sks = [];
+    private $dosen = [];
+    private $jam = [];
+    private $hari = [];
+    private $ruangan = [];
 
     public function __construct()
     {
-        $this->kelas = Kelas::all();
-        $this->pengampu = Pengampu::inRandomOrder()->get();
-        $this->jadwal = new Jadwal();
-        $this->ruangan = Ruangan::inRandomOrder()->get();
-        $this->jam = Jam::inRandomOrder()->get();
-        $this->hari = Hari::inRandomOrder()->get();
+        $this->populasi = 10; // Contoh jumlah populasi
+        $this->generasi = 100; // Jumlah generasi
+        $this->crossoverRate = 0.7; // Probabilitas crossover
+        $this->mutationRate = 0.01; // Probabilitas mutasi
     }
 
-    public function randomingProcess($classId, $day, $attempt = 0)
+    public function generateJadwal()
     {
-        ini_set('max_execution_time', 3000); // 5 minutes
+        $this->ambilData();
+        $this->inisialisasi();
+        $fitness = $this->hitungFitness();
 
-        // Get random pengampu, ruangan, jam, and hari IDs directly
-        $pengampuId = Pengampu::inRandomOrder()->value('id');
-        $ruanganId = Ruangan::inRandomOrder()->value('id');
-        $jamId = Jam::inRandomOrder()->value('id');
-        $hariId = Hari::inRandomOrder()->value('id');
-
-        $params = [
-            'pengampu_id' => $pengampuId,
-            'ruangan_id' => $ruanganId,
-            'jam_id' => $jamId,
-            'hari_id' => $hariId, // Use the provided day ID
-            'kelas_id' => $classId,
-        ];
-
-        // Check for existing schedule directly using exists() method
-        $scheduleExists = Jadwal::where($params)->exists();
-
-        if ($scheduleExists) {
-            $attempt++;
-            if ($attempt > 10) { // Stop after 100 attempts
-                return null;
-            }
-            return $this->randomingProcess($classId, $day, $attempt);
+        for ($generasi = 0; $generasi < $this->generasi; $generasi++) {
+            $this->seleksi($fitness);
+            $this->startCrossOver();
+            $fitness = $this->mutasi();
         }
 
-        return $params;
+        $bestIndex = array_keys($fitness, max($fitness))[0];
+        $jadwalTerbaik = $this->individu[$bestIndex];
+
+        foreach ($jadwalTerbaik as $jadwal) {
+            Jadwal::create([
+                'ruangan_id' => $jadwal[3],
+                'jam_id' => $jadwal[1],
+                'hari_id' => $jadwal[2],
+                'kelas_id' => Pengampu::find($jadwal[0])->kelas_id,
+                'pengampu_id' => $jadwal[0],
+                'fitness' => max($fitness)
+            ]);
+        }
+
+        return $jadwalTerbaik;
     }
 
-    public function run($populationSize, $maxGenerations)
+    private function ambilData()
     {
-        $schedules = [];
-        $fitnessScores = [];
+        $pengampu = Pengampu::with('matkul', 'dosen')->get();
 
-        // Generate initial population
-        for ($i = 0; $i < $populationSize; $i++) {
-            $schedule = $this->generateSchedule();
-            $schedules[] = $schedule;
+        foreach ($pengampu as $data) {
+            $this->pengampu[] = $data->id;
+            $this->sks[] = $data->matkul->sks;
+            $this->dosen[] = $data->dosen->id;
         }
 
-        // Calculate fitness score for each schedule
-        foreach ($schedules as $schedule) {
-            $fitnessScore = $this->calculateFitness($schedule);
-            $fitnessScores[] = $fitnessScore;
-        }
-
-        // Sort schedules based on fitness score
-        array_multisort($fitnessScores, SORT_DESC, $schedules);
-
-        // Evolve population
-        for ($generation = 0; $generation < $maxGenerations; $generation++) {
-            $newPopulation = [];
-
-            // Elitism: Keep the best schedules from the previous generation
-            for ($i = 0; $i < 2; $i++) {
-                $newPopulation[] = $schedules[$i];
-            }
-
-            // Crossover: Generate new schedules by combining the best schedules
-            while (count($newPopulation) < $populationSize) {
-                $parent1 = $this->selectParent($schedules);
-                $parent2 = $this->selectParent($schedules);
-
-                $child = $this->crossover($parent1, $parent2);
-                $newPopulation[] = $child;
-            }
-
-            // Mutate: Randomly change some schedules
-            foreach ($newPopulation as $key => $schedule) {
-                if (mt_rand(0, 100) / 100 < 0.01) {
-                    $newPopulation[$key] = $this->mutate($schedule);
-                }
-            }
-
-            // Calculate fitness score for each schedule
-            $fitnessScores = [];
-            foreach ($newPopulation as $schedule) {
-                $fitnessScore = $this->calculateFitness($schedule);
-                $fitnessScores[] = $fitnessScore;
-            }
-
-            // Sort schedules based on fitness score
-            array_multisort($fitnessScores, SORT_DESC, $newPopulation);
-
-            $schedules = $newPopulation;
-        }
-
-        return $schedules;
+        $this->jam = Jam::pluck('id')->toArray();
+        $this->hari = Hari::pluck('id')->toArray();
+        $this->ruangan = Ruangan::pluck('id')->toArray();
     }
 
-    public function generateSchedule()
+    private function inisialisasi()
     {
-        $schedules = [];
+        $jumlahPengampu = count($this->pengampu);
+        $jumlahJam = count($this->jam);
+        $jumlahHari = count($this->hari);
+        $jumlahRuangan = count($this->ruangan);
 
-        foreach ($this->kelas as $class) {
-            $classId = $class->id;
+        for ($i = 0; $i < $this->populasi; $i++) {
+            for ($j = 0; $j < $jumlahPengampu; $j++) {
+                $this->individu[$i][$j][0] = $this->pengampu[$j];
+                $this->individu[$i][$j][1] = $this->jam[array_rand($this->jam)];
+                $this->individu[$i][$j][2] = $this->hari[array_rand($this->hari)];
+                $this->individu[$i][$j][3] = $this->ruangan[array_rand($this->ruangan)];
+            }
+        }
+    }
 
-            for ($day = 1; $day <= 5; $day++) {
-                $params = $this->randomingProcess($classId, $day);
-                $schedules[] = $params;
+    private function cekFitness($indv)
+    {
+        $penalty = 0;
+        $jumlahPengampu = count($this->pengampu);
+
+        for ($i = 0; $i < $jumlahPengampu; $i++) {
+            $jamA = $this->individu[$indv][$i][1];
+            $hariA = $this->individu[$indv][$i][2];
+            $ruangA = $this->individu[$indv][$i][3];
+            $dosenA = $this->dosen[$i];
+
+            for ($j = 0; $j < $jumlahPengampu; $j++) {
+                if ($i == $j) continue;
+
+                $jamB = $this->individu[$indv][$j][1];
+                $hariB = $this->individu[$indv][$j][2];
+                $ruangB = $this->individu[$indv][$j][3];
+                $dosenB = $this->dosen[$j];
+
+                if ($jamA == $jamB && $hariA == $hariB && $ruangA == $ruangB) $penalty++;
+                if ($jamA == $jamB && $hariA == $hariB && $dosenA == $dosenB) $penalty++;
             }
         }
 
-        return $schedules;
+        return 1 / (1 + $penalty);
     }
 
-    public function calculateFitness($schedule)
+    private function hitungFitness()
     {
-        $fitness = 0;
-
-        foreach ($schedule as $params) {
-            $conflicts = Jadwal::where('jam_id', $params['jam_id'])
-                ->where('hari_id', $params['hari_id'])
-                ->whereIn('pengampu_id', [$params['pengampu_id']])
-                ->WhereIn('ruangan_id', [$params['ruangan_id']])
-                ->WhereIn('kelas_id', [$params['kelas_id']])
-                ->count();
-
-            $fitness += $conflicts > 1 ? $conflicts : 0;
+        $fitness = [];
+        for ($i = 0; $i < $this->populasi; $i++) {
+            $fitness[$i] = $this->cekFitness($i);
         }
-
         return $fitness;
     }
 
-    public function selectParent($schedules)
+    private function seleksi($fitness)
     {
-        $tournamentSize = 5;
-        $tournament = [];
+        asort($fitness);
+        $indukBaru = [];
+        $populasiBaru = [];
+        $jumlahIndividu = count($fitness);
+        $jumlahTerpilih = round($jumlahIndividu * 0.6);
 
-        for ($i = 0; $i < $tournamentSize; $i++) {
-            $randomIndex = mt_rand(0, count($schedules) - 1);
-            $tournament[] = $schedules[$randomIndex];
+        $index = 0;
+        foreach ($fitness as $key => $value) {
+            if ($index >= $jumlahTerpilih) break;
+            $indukBaru[] = $key;
+            $populasiBaru[] = $this->individu[$key];
+            $index++;
         }
 
-        usort($tournament, function ($a, $b) {
-            return $this->calculateFitness($a) < $this->calculateFitness($b);
-        });
-
-        return $tournament[0];
+        $this->individu = $populasiBaru;
     }
 
-    public function crossover($parent1, $parent2)
+    private function startCrossOver()
     {
-        $split = mt_rand(1, count($parent1) - 1);
-        $child = array_merge(array_slice($parent1, 0, $split), array_slice($parent2, $split));
+        $jumlahIndividu = count($this->individu);
+        $jumlahPengampu = count($this->pengampu);
+        $individuBaru = [];
 
-        return $child;
-    }
+        for ($i = 0; $i < $jumlahIndividu; $i += 2) {
+            $induk1 = $this->individu[$i];
+            $induk2 = $this->individu[$i + 1];
 
-    public function mutate($schedule)
-    {
-        $randomIndex = mt_rand(0, count($schedule) - 1);
-        $schedule[$randomIndex] = $this->randomingProcess($schedule[$randomIndex]['kelas_id'], $schedule[$randomIndex]['hari_id']);
+            if (mt_rand() / mt_getrandmax() < $this->crossoverRate) {
+                $point = mt_rand(0, $jumlahPengampu - 1);
 
-        return $schedule;
-    }
-
-    public function saveJadwal($schedules)
-    {
-        foreach ($schedules as $schedule) {
-            Jadwal::create($schedule);
+                for ($j = 0; $j < $point; $j++) {
+                    $individuBaru[$i][$j] = $induk1[$j];
+                    $individuBaru[$i + 1][$j] = $induk2[$j];
+                }
+                for ($j = $point; $j < $jumlahPengampu; $j++) {
+                    $individuBaru[$i][$j] = $induk2[$j];
+                    $individuBaru[$i + 1][$j] = $induk1[$j];
+                }
+            } else {
+                $individuBaru[$i] = $induk1;
+                $individuBaru[$i + 1] = $induk2;
+            }
         }
+
+        $this->individu = $individuBaru;
     }
 
-    public function getJadwal()
+    private function mutasi()
     {
-        return Jadwal::all();
-    }
+        $jumlahIndividu = count($this->individu);
+        $jumlahPengampu = count($this->pengampu);
+        $jumlahJam = count($this->jam);
+        $jumlahHari = count($this->hari);
+        $jumlahRuangan = count($this->ruangan);
 
-    public function clearJadwal()
-    {
-        Jadwal::truncate();
-    }
+        for ($i = 0; $i < $jumlahIndividu; $i++) {
+            if (mt_rand() / mt_getrandmax() < $this->mutationRate) {
+                $j = mt_rand(0, $jumlahPengampu - 1);
+                $this->individu[$i][$j][1] = $this->jam[array_rand($this->jam)];
+                $this->individu[$i][$j][2] = $this->hari[array_rand($this->hari)];
+                $this->individu[$i][$j][3] = $this->ruangan[array_rand($this->ruangan)];
+            }
+        }
 
+        return $this->hitungFitness();
+    }
 }

@@ -4,7 +4,17 @@
 @push('style')
 <script>document.getElementsByTagName("html")[0].className += " js";</script>
 <link href="{{ asset('assets/timetable/css/style.css') }}" rel="stylesheet">
+<style>
+    .right {
+        text-align: right;
+        margin-right: 20px
+    }
+</style>
 @endpush
+<!-- Add Cetak Excel button -->
+<div class="margin-top-lg right">
+    <a href="{{ route('dosen.jadwalcetak') }}" class="btn btn-primary">Cetak Excel</a>
+</div>
 
 <div class="cd-schedule cd-schedule--loading margin-top-lg margin-bottom-lg js-cd-schedule">
     <div class="cd-schedule__timeline">

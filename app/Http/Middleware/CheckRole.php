@@ -22,8 +22,8 @@ class CheckRole
         if ($user && in_array($user->role, $roles)) {
             return $next($request);
         }
- 
-        return redirect('/login')->with('error', 'Unauthorized access.');
+
+        return view('/login')->with('error', 'Unauthorized access.');
     }
 
     protected function getAuthenticatedUser()

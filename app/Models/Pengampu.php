@@ -10,7 +10,7 @@ class Pengampu extends Model
     use HasFactory;
 
     protected $table = 'pengampu';
-    protected $fillable = ['dosen_id', 'matkul_id'];
+    protected $fillable = ['dosen_id', 'matkul_id','kelas_id'];
 
     public function dosen()
     {
@@ -19,6 +19,10 @@ class Pengampu extends Model
     public function matkul()
     {
         return $this->belongsTo(Matkul::class, 'matkul_id');
+    }
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class); // Add this method
     }
 
 }

@@ -52,32 +52,38 @@ class RuanganController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ruangan $ruangan)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ruangan $ruangan)
-    {
-        //
-    }
+     public function show($id)
+     {
+         $ruangan = ruangan::find($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
+         // Return the ruangan data as JSON
+         return response()->json($ruangan);
+     }
+
+
     public function update(Request $request, Ruangan $ruangan)
     {
-        //
+        $request->validate([
+            'nama_ruangan' => 'required',
+            'kode_ruangan' => 'required',
+            'kapasitas' => 'required|numeric',
+            'lantai' => 'required',
+        ]);
+
+        $ruangan->update([
+            'nama_ruangan' => $request->nama_ruangan,
+            'kode_ruangan' => $request->kode_ruangan,
+            'kapasitas' => $request->kapasitas,
+            'lantai' => $request->lantai,
+        ]);
+
+        return response()->json(['success' => 'Ruangan updated successfully']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Ruangan $ruangan)
     {
-        //
+        $ruangan->delete();
+        return response()->json(['success' => 'Ruangan deleted successfully']);
     }
 }

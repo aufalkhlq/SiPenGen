@@ -46,9 +46,13 @@
             <li class="{{ request()->routeIs('mahasiswa.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('mahasiswa.dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
             </li>
+            <li class="{{ request()->routeIs('mahasiswa.matkul') ? 'active' : '' }}">
+                <a href="{{ route('mahasiswa.matkul') }}"><i data-feather="home"></i> <span>Daftar Matkul</span></a>
+            </li>
             <li class="{{ request()->routeIs('mahasiswa.jadwal') ? 'active' : '' }}">
                 <a href="{{ route('mahasiswa.jadwal') }}"><i data-feather="home"></i> <span>Jadwal</span></a>
             </li>
+
 
             @endif
             @if(auth()->user()->role == 'dosen')
@@ -56,9 +60,13 @@
             <li class="{{ request()->routeIs('dosen.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('dosen.dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
             </li>
+            <li class="{{ request()->routeIs('dosen.matkul') ? 'active' : '' }}">
+                <a href="{{ route('dosen.matkul') }}"><i data-feather="home"></i> <span>Daftar Matkul</span></a>
+            </li>
             <li class="{{ request()->routeIs('dosen.jadwal') ? 'active' : '' }}">
                 <a href="{{ route('dosen.jadwal') }}"><i data-feather="home"></i> <span>Jadwal</span></a>
             </li>
+
             @endif
         </ul>
     </div>
