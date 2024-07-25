@@ -40,6 +40,9 @@
             <li class="{{ request()->routeIs('jadwal') ? 'active' : '' }}">
                 <a href="{{ route('jadwal') }}"><i data-feather="calendar"></i> <span>Jadwal</span></a>
             </li>
+            <li class="{{ request()->routeIs('jadwal.edit') ? 'active' : '' }}">
+                <a href="{{ route('jadwal.edit') }}"><i data-feather="calendar"></i> <span>Edit Jadwal</span></a>
+            </li>
             @endif
             @if(auth()->user()->role == 'mahasiswa')
             <li class="menu-title"><span><b>Master Penjadwalan</b></span></li>
@@ -50,7 +53,7 @@
                 <a href="{{ route('mahasiswa.matkul') }}"><i data-feather="home"></i> <span>Daftar Matkul</span></a>
             </li>
             <li class="{{ request()->routeIs('mahasiswa.jadwal') ? 'active' : '' }}">
-                <a href="{{ route('mahasiswa.jadwal') }}"><i data-feather="home"></i> <span>Jadwal</span></a>
+                <a href="{{ route('mahasiswa.jadwal') }}"><i data-feather="calendar"></i> <span>Jadwal</span></a>
             </li>
 
 
@@ -64,7 +67,7 @@
                 <a href="{{ route('dosen.matkul') }}"><i data-feather="home"></i> <span>Daftar Matkul</span></a>
             </li>
             <li class="{{ request()->routeIs('dosen.jadwal') ? 'active' : '' }}">
-                <a href="{{ route('dosen.jadwal') }}"><i data-feather="home"></i> <span>Jadwal</span></a>
+                <a href="{{ route('dosen.jadwal') }}"><i data-feather="calendar"></i> <span>Jadwal</span></a>
             </li>
 
             @endif

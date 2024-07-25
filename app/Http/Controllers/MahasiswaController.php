@@ -6,14 +6,16 @@ use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 use App\Models\Kelas;
 use Illuminate\Support\Facades\Hash;
+
 class MahasiswaController extends Controller
 {
     public function index()
     {
         $mahasiswas = Mahasiswa::all();
         $kelas = Kelas::all();
-        return view('admin.mahasiswa.index', compact('mahasiswas','kelas'));
+        return view('admin.mahasiswa.index', compact('mahasiswas', 'kelas'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -51,8 +53,14 @@ class MahasiswaController extends Controller
             'kelas_id' => $request->{'edit-kelas_id'}, // Update kelas_id
         ]);
 
+        if ($request->filled('edit-password')) {
+            $mahasiswa->password = Hash::make($request->{'edit-password'});
+            $mahasiswa->save();
+        }
+
         return response()->json(['success' => 'Mahasiswa updated successfully.']);
     }
+
     public function edit(Mahasiswa $mahasiswa)
     {
         return response()->json($mahasiswa);

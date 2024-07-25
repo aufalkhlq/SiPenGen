@@ -14,7 +14,7 @@
                     <div class="invoices-create-btn">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#addjamModal"
                             class="btn save-invoice-btn">
-                            Add Hour
+                            Tambah Jam
                         </button>
                     </div>
                 </div>
@@ -23,7 +23,7 @@
                     <div class="col-sm-12">
                         <div class="card card-table">
                             <div class="card-header">
-                                <h4 class="card-title">List of Hours</h4>
+                                <h4 class="card-title">Daftar Jam</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -32,7 +32,7 @@
                                             <tr>
                                                 <th class="text-center">Jam Ke</th>
                                                 <th class="text-center">Waktu</th>
-                                                <th class="text-center">Actions</th>
+                                                <th class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -66,7 +66,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addjamModalLabel">Add Hour</h5>
+                                <h5 class="modal-title" id="addjamModalLabel">Tambah Jam</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
@@ -134,6 +134,72 @@
 @push('script')
     <script>
         $(document).ready(function() {
+            var table = $('.datatable').DataTable();
+
+            function bindEditAndDeleteButtons() {
+                // Edit button click event
+                $('.edit-btn').click(function() {
+                    var id = $(this).data('id');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/jam/' + id + '/edit',
+                        success: function(response) {
+                            $('#edit-jam').val(response.jam);
+                            $('#edit-waktu').val(response.waktu);
+                            $('#edit-id').val(response.id);
+                            $('#editjamModal').modal('show');
+                        }
+                    });
+                });
+
+                // Delete button click event
+                $('.delete-btn').click(function() {
+                    var id = $(this).data('id');
+                    swal.fire({
+                        title: "Are you sure?",
+                        text: "Once deleted, you will not be able to recover this user!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'No, cancel!',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: 'DELETE',
+                                url: '/jam/' + id,
+                                data: {
+                                    '_token': $('input[name=_token]').val(),
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        swal.fire({
+                                            title: "Deleted!",
+                                            text: response.success,
+                                            icon: "success",
+                                            button: "OK",
+                                        }).then((value) => {
+                                            location.reload();
+                                        });
+                                    }
+                                },
+                                error: function(response) {
+                                    if (response.responseJSON.error) {
+                                        swal.fire({
+                                            title: "Error!",
+                                            text: response.responseJSON.error,
+                                            icon: "error",
+                                            button: "OK",
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+
             $('#save-jam-button').click(function(e) {
                 e.preventDefault();
 
@@ -172,23 +238,7 @@
                     }
                 });
             });
-            // edit jam
-            $('.edit-btn').click(function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                $.ajax({
-                    type: 'GET',
-                    url: '/jam/' + id + '/edit',
-                    success: function(response) {
-                        $('#edit-jam').val(response.jam);
-                        $('#edit-waktu').val(response.waktu);
-                        $('#edit-id').val(response.id);
-                        $('#editjamModal').modal('show');
-                    }
-                });
-            });
-            // update jam
-            // update jam
+
             $('#update-jam-button').click(function(e) {
                 e.preventDefault();
                 $.ajax({
@@ -211,7 +261,7 @@
                         if (response.responseJSON.errors) {
                             let errorMsg = '';
                             Object.values(response.responseJSON.errors).forEach((
-                                errorArray) => {
+                            errorArray) => {
                                 errorArray.forEach((error) => {
                                     errorMsg += error + ' ';
                                 });
@@ -227,55 +277,12 @@
                 });
             });
 
-            // delete jam
-            $('.delete-btn').click(function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                swal.fire({
-                        title: "Are you sure?",
-                        text: "Once deleted, you will not be able to recover this user!",
-                        icon: "warning",
-                        showCancelButton: true, // This needs to be true to show the cancel button.
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, delete it!',
-                        cancelButtonText: 'No, cancel!',
-                    })
-                    .then((willDelete) => {
-                        if (willDelete) {
-                            $.ajax({
-                                type: 'DELETE',
-                                url: '/jam/' + id,
-                                data: {
-                                    '_token': $('input[name=_token]').val(),
-                                },
-                                success: function(response) {
-                                    if (response.success) {
-                                        swal.fire({
-                                            title: "Deleted!",
-                                            text: response.success,
-                                            icon: "success",
-                                            button: "OK",
-                                        }).then((value) => {
-                                            location.reload();
-                                        });
-                                    }
-                                },
+            // Initial binding of edit and delete buttons
+            bindEditAndDeleteButtons();
 
-                                error: function(response) {
-                                    if (response.responseJSON.error) {
-                                        swal.fire({
-                                            title: "Error!",
-                                            text: response.responseJSON.error,
-                                            icon: "error",
-                                            button: "OK",
-                                        });
-                                    }
-
-                                }
-                            });
-                        }
-                    });
+            // Rebind edit and delete buttons on table draw event
+            table.on('draw', function() {
+                bindEditAndDeleteButtons();
             });
         });
     </script>

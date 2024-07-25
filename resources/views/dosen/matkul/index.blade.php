@@ -17,7 +17,7 @@
         <div class="col-sm-12">
             <div class="card card-table">
                 <div class="card-header">
-                    <h4 class="card-title">List of Mata Kuliah</h4>
+                    <h4 class="card-title">Daftar Mata Kuliah</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

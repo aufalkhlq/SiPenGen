@@ -161,7 +161,7 @@
     </div>
 @endsection
 @push('style')
-@endpush
+@endpush 
 @push('script')
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
     <script>

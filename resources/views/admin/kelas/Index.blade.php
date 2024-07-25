@@ -14,7 +14,7 @@
                 <div class="invoices-create-btn">
                     <button type="button" data-bs-toggle="modal" data-bs-target="#addkelasModal"
                         class="btn save-invoice-btn">
-                        Add Kelas
+                        Tambah Kelas
                     </button>
                 </div>
             </div>
@@ -25,7 +25,7 @@
         <div class="col-sm-12">
             <div class="card card-table">
                 <div class="card-header">
-                    <h4 class="card-title">List of kelas</h4>
+                    <h4 class="card-title">Daftar kelas</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -35,8 +35,8 @@
                                     <th class="text-center">Nama Kelas</th>
                                     <th class="text-center">Tahun Angkatan</th>
                                     <th class="text-center">Prodi</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-center">Actions</th>
+                                    {{-- <th class="text-center">Status</th> --}}
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -45,8 +45,8 @@
                                     <td class="text-center">{{$item->nama_kelas}}</td>
                                     <td class="text-center">{{$item->tahun_angkatan}} </td>
                                     <td class="text-center">{{$item->prodi}}</td>
-                                    <td class="text-center"><span
-                                            class="badge badge-pill bg-success-light">Active</span></td>
+                                    {{-- <td class="text-center"><span
+                                            class="badge badge-pill bg-success-light">Active</span></td> --}}
                                     <td class="text-center">
                                         <button type="button"
                                             class="btn btn-sm btn-white text-success me-2 edit-btn"
@@ -73,7 +73,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addkelasModalLabel">Add Kelas</h5>
+                    <h5 class="modal-title" id="addkelasModalLabel">Tambah Kelas</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -96,7 +96,6 @@
                                 <option selected disabled>Select Prodi</option>
                                 <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
                                 <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer</option>
-                                <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                             </select>
                         </div>
                     </form>
@@ -139,7 +138,6 @@
                                 <option selected disabled>Select Prodi</option>
                                 <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
                                 <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer</option>
-                                <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                             </select>
                         </div>
                         <input type="hidden" id="edit-id" name="id">
@@ -154,9 +152,68 @@
     </div>
 </div>
 
+@endsection
+
 @push('script')
 <script>
     $(document).ready(function() {
+        var table = $('.datatable').DataTable();
+
+        function bindEditAndDeleteButtons() {
+            // Edit button click event
+            $('.edit-btn').click(function() {
+                var id = $(this).data('id');
+                $.ajax({
+                    type: 'GET',
+                    url: '/kelas/' + id + '/edit',
+                    success: function(response) {
+                        $('#edit-nama_kelas').val(response.nama_kelas);
+                        $('#edit-tahun_angkatan').val(response.tahun_angkatan);
+                        $('#edit-prodi').val(response.prodi);
+                        $('#edit-id').val(response.id);
+                        $('#editkelasModal').modal('show');
+                    },
+                });
+            });
+
+            // Delete button click event
+            $('.delete-btn').click(function() {
+                var id = $(this).data('id');
+                swal.fire({
+                    title: "Are you sure?",
+                    text: "Once deleted, you will not be able to recover this class!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '/kelas/' + id,
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    swal.fire({
+                                        title: "Deleted!",
+                                        text: response.success,
+                                        icon: "success",
+                                        button: "OK",
+                                    }).then((value) => {
+                                        location.reload();
+                                    });
+                                }
+                            },
+                        });
+                    }
+                });
+            });
+        }
+
         $('#save-kelas-button').click(function(e) {
             e.preventDefault();
             if (!$('#nama_kelas').val() || !$('#tahun_angkatan').val() || !$('#prodi').val()) {
@@ -183,22 +240,6 @@
                             location.reload();
                         });
                     }
-                },
-            });
-        });
-
-        // Edit button click event
-        $('.edit-btn').click(function() {
-            var id = $(this).data('id');
-            $.ajax({
-                type: 'GET',
-                url: '/kelas/' + id + '/edit',
-                success: function(response) {
-                    $('#edit-nama_kelas').val(response.nama_kelas);
-                    $('#edit-tahun_angkatan').val(response.tahun_angkatan);
-                    $('#edit-prodi').val(response.prodi);
-                    $('#edit-id').val(response.id);
-                    $('#editkelasModal').modal('show');
                 },
             });
         });
@@ -234,44 +275,15 @@
             });
         });
 
-        // Delete button click event
-        $('.delete-btn').click(function() {
-            var id = $(this).data('id');
-            swal.fire({
-                title: "Are you sure?",
-                text: "Once deleted, you will not be able to recover this class!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'No, cancel!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: 'DELETE',
-                        url: '/kelas/' + id,
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                swal.fire({
-                                    title: "Deleted!",
-                                    text: response.success,
-                                    icon: "success",
-                                    button: "OK",
-                                }).then((value) => {
-                                    location.reload();
-                                });
-                            }
-                        },
-                    });
-                }
-            });
+        // Initial binding of edit and delete buttons
+        bindEditAndDeleteButtons();
+
+        // Rebind edit and delete buttons on table draw event
+        table.on('draw', function() {
+            bindEditAndDeleteButtons();
         });
     });
 </script>
 @endpush
 
-@endsection
+

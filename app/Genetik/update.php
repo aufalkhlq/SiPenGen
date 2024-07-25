@@ -44,7 +44,7 @@ class GeneticAlgorithm
                 for ($s = 0; $s < $totalJadwal; $s++) {
                     Log::info("Inisialisasi SKS Loop", ['loop' => $s]);
                     $attempts = 0;
-                    $maxAttempts = 1000; // Batasi jumlah percobaan
+                    $maxAttempts = 100; // Batasi jumlah percobaan
                     do {
                         $jadwal = $this->buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $kelas_id, $pengampu->id, $matkul->nama_matkul, $jadwalMap, $kelasJamPerHari[$kelas_id]);
                         $attempts++;
@@ -145,7 +145,7 @@ class GeneticAlgorithm
         foreach ($kelasJamPerHari as $kelas_id => $jamPerHari) {
             foreach ($jamPerHari as $hari_id => $totalJam) {
                 if ($totalJam > 8) {
-                    $conflicts += ($totalJam - 8) * 2; // Tambahkan penalti yang lebih tinggi untuk setiap jam melebihi 8 jam
+                    $conflicts += ($totalJam - 8); // Tambahkan penalti untuk setiap jam melebihi 8 jam
                 }
             }
         }
@@ -156,19 +156,13 @@ class GeneticAlgorithm
     }
 
     // Evaluasi Populasi
-    public function evaluasiPopulasi($populasi, $jumlahHari, $generation)
+    public function evaluasiPopulasi($populasi, $jumlahHari)
     {
         Log::info('Evaluasi Fitness Populasi');
         $fitnessPopulasi = [];
 
-        foreach ($populasi as $index => $individu) {
-            $fitness = $this->evaluasiFitness($individu, $jumlahHari);
-            $fitnessPopulasi[] = $fitness;
-
-            // Simpan nilai fitness ke database
-            foreach ($individu as &$jadwal) {
-                $jadwal['fitness'] = $fitness;
-            }
+        foreach ($populasi as $individu) {
+            $fitnessPopulasi[] = $this->evaluasiFitness($individu, $jumlahHari); // Pastikan dua argumen diberikan
         }
 
         return $fitnessPopulasi;
@@ -212,7 +206,7 @@ class GeneticAlgorithm
 
         for ($i = 0; $i < $jumlahGenerasi; $i++) {
             Log::info('Generasi', ['generasi' => $i]);
-            $fitnessPopulasi = $this->evaluasiPopulasi($populasi, $jumlahHari, $i);
+            $fitnessPopulasi = $this->evaluasiPopulasi($populasi, $jumlahHari);
             $populasiTerpilih = $this->seleksi($populasi, $fitnessPopulasi);
 
             $populasiBaru = [];
@@ -232,7 +226,7 @@ class GeneticAlgorithm
             $populasi = $populasiBaru;
         }
 
-        $fitnessPopulasi = $this->evaluasiPopulasi($populasi, $jumlahHari, $jumlahGenerasi);
+        $fitnessPopulasi = $this->evaluasiPopulasi($populasi, $jumlahHari);
         $indexTerbaik = array_keys($fitnessPopulasi, max($fitnessPopulasi))[0];
         $jadwalTerbaik = $populasi[$indexTerbaik];
 

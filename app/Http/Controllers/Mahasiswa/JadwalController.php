@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Jadwal;
 use App\Models\Jam;
 use App\Models\Kelas;
+use App\Models\Hari;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -30,51 +31,43 @@ class JadwalController extends Controller
         return array('start' => $start_time->format('H:i'), 'end' => $end_time->format('H:i'));
     }
 
+
+
     public function index(Request $request)
     {
-        $jams = Jam::all();
-        $user = Auth::guard('mahasiswa')->user();
-        $kelasId = $user->kelas_id;
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
-        $eventsByDay = [];
-
-        foreach ($days as $day) {
-            $eventsByDay[$day] = [];
-            $jadwals = Jadwal::where('kelas_id', $kelasId)
-                        ->whereHas('hari', function($query) use ($day) {
-                            $query->where('hari', $day);
-                        })
-                        ->orderBy('jam_id')
-                        ->get();
-
-            foreach ($jadwals as $jadwal) {
-                try {
-                    $convertedTimes = $this->convertTimeRange($jadwal->jam->waktu);
-                    $lastEvent = end($eventsByDay[$day]);
-
-                    if ($lastEvent &&
-                        $lastEvent['end'] == $convertedTimes['start'] &&
-                        $lastEvent['title'] == $jadwal->pengampu->matkul->nama_matkul &&
-                        $lastEvent['ruangan'] == $jadwal->ruangan->nama_ruangan
-                    ) {
-                        // Update end time of the last event if they are consecutive
-                        $eventsByDay[$day][key($eventsByDay[$day])]['end'] = $convertedTimes['end'];
-                    } else {
-                        $eventsByDay[$day][] = [
-                            'title' => $jadwal->pengampu->matkul->nama_matkul,
-                            'start' => $convertedTimes['start'],
-                            'end' => $convertedTimes['end'],
-                            'ruangan' => $jadwal->ruangan->nama_ruangan
-                        ];
-                    }
-                } catch (\Exception $e) {
-                    \Log::error("Error converting time range: " . $e->getMessage());
-                }
-            }
+        // Memastikan bahwa user telah login
+        if (Auth::guard('mahasiswa')->check()) {
+            $userKelasId = Auth::guard('mahasiswa')->user()->kelas_id;
+        } else {
+            // Handle the case where the user is not logged in
+            return redirect()->route('login');
         }
 
-        return view('mahasiswa.jadwal.index', compact('eventsByDay', 'jams'));
+        $kelasId = $request->input('kelas_id');
+        $jadwals = Jadwal::with(['pengampu.dosen', 'pengampu.matkul', 'ruangan', 'jam', 'hari', 'kelas']);
+
+        // Filter jadwals by user's class if no specific class is requested
+        if (!empty($kelasId)) {
+            $jadwals = $jadwals->where('kelas_id', $kelasId);
+        } else {
+            $jadwals = $jadwals->where('kelas_id', $userKelasId);
+        }
+
+        $haris = Hari::all();
+        $jams = Jam::all();
+        $jadwals = $jadwals->get();
+        $kelas = Kelas::all(); // Get all classes for the filter dropdown
+
+        return view('mahasiswa.jadwal.index', [
+            'jadwals' => $jadwals,
+            'kelas' => $kelas,
+            'selectedKelas' => $kelasId ?: $userKelasId,
+            'jams' => $jams,
+            'haris' => $haris
+        ]);
     }
+
+
     public function printPDF(Request $request)
     {
         // Get the currently authenticated student
@@ -188,7 +181,7 @@ class JadwalController extends Controller
         $sheet->getColumnDimension('D')->setWidth(15);
         $sheet->getColumnDimension('E')->setWidth(30);
         $sheet->getColumnDimension('F')->setWidth(35);
-        $sheet->getColumnDimension('G')->setWidth(20);
+        $sheet->getColumnDimension('G')->setWidth(30);
 
         // Set row heights
         for ($i = 1; $i <= $row; $i++) {
@@ -205,7 +198,7 @@ class JadwalController extends Controller
 
         // Save to Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'JadwalKuliah.xlsx';
+        $filename = 'JadwalKelas' . $kelas->nama_kelas . '.xlsx';
 
         // Redirect output to a client’s web browser (Xlsx)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

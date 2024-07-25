@@ -14,7 +14,7 @@
                     <div class="invoices-create-btn">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#addmahasiswaModal"
                             class="btn save-invoice-btn">
-                            Add Mahasiswa
+                            Tambah Mahasiswa
                         </button>
                     </div>
                 </div>
@@ -23,7 +23,7 @@
                     <div class="col-sm-12">
                         <div class="card card-table">
                             <div class="card-header">
-                                <h4 class="card-title">List of Mahasiswa</h4>
+                                <h4 class="card-title">Daftar Mahasiswa</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -34,8 +34,8 @@
                                                 <th class="text-center">NIM</th>
                                                 <th class="text-center">Kelas</th>
                                                 <th class="text-center">Prodi</th>
-                                                <th class="text-center">Status</th>
-                                                <th class="text-center">Actions</th>
+                                                {{-- <th class="text-center">Status</th> --}}
+                                                <th class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -45,8 +45,8 @@
                                                     <td class="text-center">{{ $mahasiswa->nim }}</td>
                                                     <td class="text-center">{{ $mahasiswa->kelas->nama_kelas }}</td>
                                                     <td class="text-center">{{ $mahasiswa->prodi }}</td>
-                                                    <td class="text-center"><span
-                                                            class="badge badge-pill bg-success-light">Active</span></td>
+                                                    {{-- <td class="text-center"><span
+                                                            class="badge badge-pill bg-success-light">Active</span></td> --}}
                                                     <td class="text-center">
                                                         <button type="button"
                                                             class="btn btn-sm btn-white text-success me-2 edit-btn"
@@ -68,13 +68,12 @@
                 </div>
 
                 {{-- Add mahasiswa Modal --}}
-                {{-- Add mahasiswa Modal --}}
                 <div class="modal fade" id="addmahasiswaModal" tabindex="-1" aria-labelledby="addmahasiswaModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addmahasiswaModalLabel">Add Mahasiswa</h5>
+                                <h5 class="modal-title" id="addmahasiswaModalLabel">Tambah Mahasiswa</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
@@ -106,7 +105,6 @@
                                             <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
                                             <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer
                                             </option>
-                                            <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                                         </select>
                                     </div>
 
@@ -153,6 +151,7 @@
                                             @endforeach
                                         </select>
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="edit-prodi" class="form-label">Prodi</label>
                                         <select class="form-select" id="edit-prodi" name="edit-prodi" required>
@@ -160,10 +159,13 @@
                                             <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
                                             <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer
                                             </option>
-                                            <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                                         </select>
                                     </div>
-
+                                    <div class="mb-3">
+                                        <label for="edit-password" class="form-label">Password Baru</label>
+                                        <input type="password" class="form-control" id="edit-password" name="edit-password"
+                                            placeholder="Kosongkan Jika tidak Merubah Password">
+                                    </div>
                                     <input type="hidden" id="edit-id" name="id">
                                 </form>
                             </div>
@@ -336,4 +338,3 @@
     });
 </script>
 @endpush
-

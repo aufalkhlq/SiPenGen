@@ -17,19 +17,21 @@ Route::get('/welcome', function () {
     return view('welcome');
 });
 // Auth
-Route::controller('App\Http\Controllers\AuthController')->group(function(){
+Route::controller('App\Http\Controllers\AuthController')->group(function () {
     Route::get('/login', 'index')->name('login');
     Route::post('/login', 'login')->name('login.post');
     Route::get('/logout', 'logout')->name('logout');
+    Route::get('/profile', 'profile')->name('profile')->middleware('auth:web,mahasiswa,dosen');
+    Route::put('/profile/update-password', 'updatePassword')->name('profile.update.password')->middleware('auth:web,mahasiswa,dosen');
 });
 
 // Dashboard
 Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
-    Route::controller('App\Http\Controllers\DashboardController')->group(function(){
+    Route::controller('App\Http\Controllers\DashboardController')->group(function () {
         Route::get('/', 'index')->name('dashboard');
     });
 
-    Route::controller('App\Http\Controllers\UserController')->group(function(){
+    Route::controller('App\Http\Controllers\UserController')->group(function () {
         Route::get('/user', 'index')->name('user');
         Route::get('/user/dosen', 'dosen')->name('user.dosen');
         Route::get('/user/mahasiswa', 'mahasiswa')->name('user.mahasiswa');
@@ -40,7 +42,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
         Route::delete('/user/{user}', 'delete')->name('user.delete');
     });
     // dosen
-    Route::controller('App\Http\Controllers\DosenController')->group(function(){
+    Route::controller('App\Http\Controllers\DosenController')->group(function () {
         Route::get('/dosen', 'index')->name('dosen');
         Route::post('/dosen', 'store')->name('dosen.store');
         Route::get('/dosen/{dosen}', 'show')->name('dosen.show');
@@ -49,7 +51,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
         Route::delete('/dosen/{dosen}', 'delete')->name('dosen.delete');
     });
     // mahsiswa
-    Route::controller('App\Http\Controllers\MahasiswaController')->group(function(){
+    Route::controller('App\Http\Controllers\MahasiswaController')->group(function () {
         Route::get('/mahasiswa', 'index')->name('mahasiswa');
         Route::post('/mahasiswa', 'store')->name('mahasiswa.store');
         Route::get('/mahasiswa/{mahasiswa}/edit', 'edit')->name('mahasiswa.edit');
@@ -57,7 +59,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
         Route::delete('/mahasiswa/{mahasiswa}', 'delete')->name('mahasiswa.delete');
     });
     // kelas
-    Route::controller('App\Http\Controllers\KelasController')->group(function(){
+    Route::controller('App\Http\Controllers\KelasController')->group(function () {
         Route::get('/kelas', 'index')->name('kelas');
         Route::post('/kelas', 'store')->name('kelas.store');
         Route::get('/kelas/{kelas}', 'show')->name('kelas.show');
@@ -67,7 +69,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
     });
 
     // ruangan
-    Route::controller('App\Http\Controllers\RuanganController')->group(function(){
+    Route::controller('App\Http\Controllers\RuanganController')->group(function () {
         Route::get('/ruangan', 'index')->name('ruangan');
         Route::post('/ruangan', 'store')->name('ruangan.store');
         Route::get('/ruangan/{ruangan}', 'show')->name('ruangan.show');
@@ -77,7 +79,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
     });
 
     // matkul
-    Route::controller('App\Http\Controllers\MatkulController')->group(function(){
+    Route::controller('App\Http\Controllers\MatkulController')->group(function () {
         Route::get('/matkul', 'index')->name('matkul');
         Route::post('/matkul', 'store')->name('matkul.store');
         Route::get('/matkul/{matkul}', 'show')->name('matkul.show');
@@ -87,7 +89,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
     });
 
     //jam
-    Route::controller('App\Http\Controllers\JamController')->group(function(){
+    Route::controller('App\Http\Controllers\JamController')->group(function () {
         Route::get('/jam', 'index')->name('jam');
         Route::post('/jam', 'store')->name('jam.store');
         Route::get('/jam/{jam}', 'show')->name('jam.show');
@@ -97,7 +99,7 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
     });
 
     //hari
-    Route::controller('App\Http\Controllers\HariController')->group(function(){
+    Route::controller('App\Http\Controllers\HariController')->group(function () {
         Route::get('/hari', 'index')->name('hari');
         Route::post('/hari', 'store')->name('hari.store');
         Route::get('/hari/{hari}', 'show')->name('hari.show');
@@ -107,18 +109,23 @@ Route::group(['middleware' => ['auth:web', 'checkRole:admin']], function () {
     });
 
     // jadwal
-    Route::controller('App\Http\Controllers\JadwalController')->group(function(){
+    Route::controller('App\Http\Controllers\JadwalController')->group(function () {
         Route::get('/jadwal', 'index')->name('jadwal');
-        Route::post('/jadwal', 'store')->name('jadwal.store');
         Route::post('/generate', 'generateSchedule')->name('jadwal.generate');
-        Route::get('/jadwal/conflicts',  'checkConflicts')->name('jadwal.conflicts');
-        Route::delete('/jadwal/delete}', 'delete')->name('jadwal.delete');
+        Route::get('/jadwal/conflicts', 'checkConflicts')->name('jadwal.conflicts');
+        Route::delete('/jadwal/delete', 'delete')->name('jadwal.delete');
         Route::get('/jadwal/printpdf', 'printPDF')->name('jadwal.printpdf');
         Route::get('/jadwal/status', 'status')->name('jadwal.status');
+        Route::get('/jadwal/edit', 'edit')->name('jadwal.edit');
+        Route::post('/jadwal/update', 'update')->name('jadwal.update');
+        Route::post('/jadwal/check-conflict', 'checkConflict')->name('jadwal.check-conflict');
+        Route::get('/jadwal/getAvailableSlots', 'getAvailableSlots')->name('jadwal.available-slots');
+        Route::post('/jadwal/generateWithoutConflicts', 'generateWithoutConflicts')->name('jadwal.generate-konflik');
+
     });
 
     // pengampu
-    Route::controller('App\Http\Controllers\PengampuController')->group(function(){
+    Route::controller('App\Http\Controllers\PengampuController')->group(function () {
         Route::get('/pengampu', 'index')->name('pengampu');
         Route::post('/pengampu', 'store')->name('pengampu.store');
         Route::get('/pengampu/{pengampu}', 'show')->name('pengampu.show');

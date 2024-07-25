@@ -1,5 +1,23 @@
 @extends('components.app')
 @section('content')
+@push('style')
+<style>
+.select2-container--default .select2-selection--single {
+    height: calc(1.5em + .75rem + 2px); /* Adjust the height */
+    padding: .375rem .40rem; /* Adjust the padding */
+
+    line-height: 1.5; /* Adjust the line height */
+    border: 1px solid #ced4da; /* Adjust the border */
+    border-radius: .25rem; /* Adjust the border radius */
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.5; /* Adjust the line height to match other inputs */
+    color: black;
+}
+
+</style>
+@endpush
     <div class="content container-fluid">
         <div class="page-header">
             <div class="row align-items-center">
@@ -14,7 +32,7 @@
                     <div class="invoices-create-btn">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#addpengampuModal"
                             class="btn save-invoice-btn">
-                            Add Pengampu
+                            Tambah Pengampu
                         </button>
                     </div>
                 </div>
@@ -25,7 +43,7 @@
             <div class="col-sm-12">
                 <div class="card card-table">
                     <div class="card-header">
-                        <h4 class="card-title">List of Pengampu</h4>
+                        <h4 class="card-title">Daftar Pengampu</h4>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -35,8 +53,8 @@
                                         <th class="text-center">No</th>
                                         <th class="text-center">Nama Dosen</th>
                                         <th class="text-center">Mata Kuliah</th>
-                                        <th class="text-center">Kelas</th> <!-- Add this line -->
-                                        <th class="text-center">Actions</th>
+                                        <th class="text-center">Kelas</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -50,7 +68,6 @@
                                             <td class="text-center">{{ $pengampu->dosen->nama_dosen }}</td>
                                             <td class="text-center">{{ $pengampu->matkul->nama_matkul }}</td>
                                             <td class="text-center">{{ $pengampu->kelas->nama_kelas }}</td>
-                                            <!-- Add this line -->
                                             <td class="text-center">
                                                 <button type="button"
                                                     class="btn btn-sm btn-white text-success me-2 edit-btn"
@@ -79,7 +96,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addpengampuModalLabel">Add pengampu</h5>
+                    <h5 class="modal-title" id="addpengampuModalLabel">Tambah Pengampu</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -87,7 +104,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="dosen_id" class="form-label">Nama Dosen</label>
-                            <select class="form-select" id="dosen_id" name="dosen_id" required>
+                            <select class="form-select basic" id="dosen_id" name="dosen_id" required>
                                 <option selected disabled>Select Dosen</option>
                                 @foreach ($dosens as $dosen)
                                     <option value="{{ $dosen->id }}">{{ $dosen->nama_dosen }}</option>
@@ -96,16 +113,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="matkul_id" class="form-label">Mata Kuliah</label>
-                            <select class="form-select" id="matkul_id" name="matkul_id" required>
+                            <select class="form-select basic" id="matkul_id" name="matkul_id" required>
                                 <option selected disabled>Select Matkul</option>
                                 @foreach ($matkuls as $matkul)
-                                    <option value="{{ $matkul->id }}">{{ $matkul->nama_matkul }}</option>
+                                    <option value="{{ $matkul->id }}">{{ $matkul->nama_matkul }} - {{$matkul->kode_matkul}}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3"> <!-- Add this block -->
+                        <div class="mb-3">
                             <label for="kelas_id" class="form-label">Kelas</label>
-                            <select class="form-select" id="kelas_id" name="kelas_id" required>
+                            <select class="form-select basic" id="kelas_id" name="kelas_id" required>
                                 <option selected disabled>Select Kelas</option>
                                 @foreach ($kelas as $kls)
                                     <option value="{{ $kls->id }}">{{ $kls->nama_kelas }}</option>
@@ -129,7 +146,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editpengampuModalLabel">Edit pengampu</h5>
+                    <h5 class="modal-title" id="editpengampuModalLabel">Edit Pengampu</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -137,7 +154,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="edit-dosen_id" class="form-label">Nama Dosen</label>
-                            <select class="form-select" id="edit-dosen_id" name="dosen_id" required>
+                            <select class="form-select basic-edit" id="edit-dosen_id" name="dosen_id" required>
                                 <option selected disabled>Select Dosen</option>
                                 @foreach ($dosens as $dosen)
                                     <option value="{{ $dosen->id }}">{{ $dosen->nama_dosen }}</option>
@@ -146,16 +163,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit-matkul_id" class="form-label">Mata Kuliah</label>
-                            <select class="form-select" id="edit-matkul_id" name="matkul_id" required>
+                            <select class="form-select basic-edit" id="edit-matkul_id" name="matkul_id" required>
                                 <option selected disabled>Select Matkul</option>
                                 @foreach ($matkuls as $matkul)
-                                    <option value="{{ $matkul->id }}">{{ $matkul->nama_matkul }}</option>
+                                    <option value="{{ $matkul->id }}">{{ $matkul->nama_matkul }} - {{$matkul->kode_matkul}}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="mb-3"> <!-- Add this block -->
+                        <div class="mb-3">
                             <label for="edit-kelas_id" class="form-label">Kelas</label>
-                            <select class="form-select" id="edit-kelas_id" name="kelas_id" required>
+                            <select class="form-select basic-edit" id="edit-kelas_id" name="kelas_id" required>
                                 <option selected disabled>Select Kelas</option>
                                 @foreach ($kelas as $kls)
                                     <option value="{{ $kls->id }}">{{ $kls->nama_kelas }}</option>
@@ -178,19 +195,25 @@
 <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
 <script>
     $(document).ready(function() {
+        if ($.fn.select2) {
+            $(".basic").select2({
+                dropdownParent: $("#addpengampuModal")
+            });
+            $(".basic-edit").select2({
+                dropdownParent: $("#editpengampuModal") // append dropdown to modal
+            });
+        }
+
         function bindActions() {
-            // Unbind previous event handlers
             $('#add-pengampu-form').off('submit');
             $('#save-pengampu-button').off('click');
             $('#update-pengampu-button').off('click');
             $('.edit-btn').off('click');
             $('.delete-btn').off('click');
 
-            // Form submission for adding pengampu
             $('#add-pengampu-form').on('submit', function(e) {
                 e.preventDefault();
 
-                // Get selected options
                 var idDosen = $('#dosen_id').val();
                 var idMatkul = $('#matkul_id').val();
                 var idKelas = $('#kelas_id').val();
@@ -212,7 +235,7 @@
                         }
                     },
                     error: function(xhr, status, error) {
-                        if (xhr.status === 422) { // Laravel validation error status code
+                        if (xhr.status === 422) {
                             var errors = JSON.parse(xhr.responseText).errors;
                             if (errors.dosen_id || errors.matkul_id || errors.kelas_id) {
                                 swal.fire({
@@ -229,24 +252,21 @@
                 });
             });
 
-            // Save pengampu button click event
             $('#save-pengampu-button').on('click', function() {
                 $('#add-pengampu-form').submit();
             });
 
-            // Edit button click event
             $('.edit-btn').on('click', function() {
                 var id = $(this).data('id');
                 $.get('/pengampu/' + id + '/edit', function(data) {
                     $('#edit-id').val(data.id);
-                    $('#edit-dosen_id').val(data.dosen_id);
-                    $('#edit-matkul_id').val(data.matkul_id);
-                    $('#edit-kelas_id').val(data.kelas_id);
+                    $('#edit-dosen_id').val(data.dosen_id).trigger('change'); // Trigger change event
+                    $('#edit-matkul_id').val(data.matkul_id).trigger('change'); // Trigger change event
+                    $('#edit-kelas_id').val(data.kelas_id).trigger('change'); // Trigger change event
                     $('#editpengampuModal').modal('show');
                 });
             });
 
-            // Update button click event
             $('#update-pengampu-button').on('click', function() {
                 var id = $('#edit-id').val();
                 $.ajax({
@@ -283,7 +303,6 @@
                 });
             });
 
-            // Delete button click event
             $('.delete-btn').on('click', function() {
                 var id = $(this).data('id');
                 swal.fire({
@@ -323,14 +342,11 @@
             });
         }
 
-        // Initial binding of actions
         bindActions();
 
-        // Re-bind actions on table redraw
         $('.datatable').on('draw.dt', function() {
             bindActions();
         });
     });
 </script>
 @endpush
-

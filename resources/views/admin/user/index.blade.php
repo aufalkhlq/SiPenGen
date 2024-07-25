@@ -14,7 +14,7 @@
                     <div class="invoices-create-btn">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#addUserModal"
                             class="btn save-invoice-btn">
-                            Add User
+                            Tambah User
                         </button>
                     </div>
                 </div>
@@ -26,17 +26,20 @@
         <div class="row mt-4">
             <div class="col-sm-12">
                 <div class="card card-table">
+                    <div class="card-header">
+                        <h4 class="card-title">Daftar User</h4>
+                    </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover table-center mb-0 datatable">
                                 <thead class="thead-light">
                                     <tr>
                                         {{-- <th>ID</th> --}}
-                                        <th class="text-center">Name</th>
+                                        <th class="text-center">Nama</th>
                                         <th class="text-center">Email</th>
                                         <th class="text-center">Role</th>
-                                        <th class="text-center">Status</th>
-                                        <th class="text-center">Actions</th>
+                                        {{-- <th class="text-center">Status</th> --}}
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,8 +49,8 @@
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
                                             <td class="text-center">{{$user->role}}</td>
-                                            <td class="text-center"><span
-                                                    class="badge badge-pill bg-success-light">Active</span></td>
+                                            {{-- <td class="text-center"><span
+                                                    class="badge badge-pill bg-success-light">Active</span></td> --}}
                                             <td class="text-center">
                                                 <button type="button"
                                                     class="btn btn-sm btn-white text-success me-2 edit-btn"
@@ -73,7 +76,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                        <h5 class="modal-title" id="addUserModalLabel">Tambah User</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -94,7 +97,7 @@
                             <div class="mb-3">
                                 <label for="role" class="form-label">Role</label>
                                 <select class="form-select" id="role" name="role" disabled>
-                                    <option value="admin">Select Role</option>
+                                    <option value="admin">Admin</option>
                                 </select>
                                 <input type="hidden" name="role" value="admin">
                             </div>
@@ -158,59 +161,13 @@
 @endsection
 
 @push('script')
-    <script>
-        $(document).ready(function() {
-            $('#save-user-button').click(function(e) {
-                e.preventDefault();
-                if (!$('#email').val() || !$('#password').val()) {
-                    swal.fire({
-                        title: "Error!",
-                        text: "Email and password are required.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                    return;
-                }
+<script>
+    $(document).ready(function() {
+        var table = $('.datatable').DataTable();
 
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route('user.store') }}',
-                    data: $('#add-user-form').serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            swal.fire({
-                                title: "Success!",
-                                text: response.success,
-                                icon: "success",
-                                button: "OK",
-                            }).then((value) => {
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function(response) {
-                        if (response.responseJSON.errors && response.responseJSON.errors
-                            .email) {
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors.email[0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        } else if (response.responseJSON.errors) {
-                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors[firstErrorKey][0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        }
-                    }
-                });
-            });
-
-            $('.edit-btn').click(function() {
+        function bindEditAndDeleteButtons() {
+            // Unbind existing event handlers to prevent duplicate bindings
+            $('.edit-btn').off('click').on('click', function() {
                 var userId = $(this).data('id');
                 $.ajax({
                     type: 'GET',
@@ -220,8 +177,7 @@
                         $('#edit-name').val(response.name);
                         $('#edit-email').val(response.email);
                         $('#edit-id').val(response.id);
-                        $('#edit-password').val(response.password);
-                        $('#edit-role').val(response.role)
+                        $('#edit-role').val(response.role);
                         $('#editUserModal').modal('show');
                     },
                     error: function(xhr, status, error) {
@@ -230,63 +186,22 @@
                     }
                 });
             });
-            // user update
-            $('#update-user-button').click(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'PUT',
-                    url: '/user/' + $('#edit-id').val(),
-                    data: $('#edit-user-form').serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            swal.fire({
-                                title: "Success!",
-                                text: response.success,
-                                icon: "success",
-                                button: "OK",
-                            }).then((value) => {
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function(response) {
-                        if (response.responseJSON.errors && response.responseJSON.errors
-                            .email) {
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors.email[0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        } else if (response.responseJSON.errors) {
-                            const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                            swal.fire({
-                                title: "Error!",
-                                text: response.responseJSON.errors[firstErrorKey][0],
-                                icon: "error",
-                                button: "OK",
-                            });
-                        }
-                    }
-                });
-            });
 
-            $('.delete-btn').click(function(e) {
+            // Unbind existing event handlers to prevent duplicate bindings
+            $('.delete-btn').off('click').on('click', function(e) {
                 e.preventDefault();
                 var userId = $(this).data('id');
                 swal.fire({
                     title: "Are you sure?",
                     text: "Once deleted, you will not be able to recover this user!",
                     icon: "warning",
-                    showCancelButton: true, // This needs to be true to show the cancel button.
+                    showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Yes, delete it!',
                     cancelButtonText: 'No, cancel!',
-                    // dangerMode: true,
                 }).then((result) => {
-                    if (result
-                        .isConfirmed) { // Changed from willDelete to isConfirmed for SweetAlert2
+                    if (result.isConfirmed) {
                         $.ajax({
                             type: 'DELETE',
                             url: '/user/' + userId,
@@ -319,7 +234,104 @@
                     }
                 });
             });
+        }
 
+        $('#save-user-button').click(function(e) {
+            e.preventDefault();
+            if (!$('#email').val() || !$('#password').val()) {
+                swal.fire({
+                    title: "Error!",
+                    text: "Email and password are required.",
+                    icon: "error",
+                    button: "OK",
+                });
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('user.store') }}',
+                data: $('#add-user-form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        swal.fire({
+                            title: "Success!",
+                            text: response.success,
+                            icon: "success",
+                            button: "OK",
+                        }).then((value) => {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(response) {
+                    if (response.responseJSON.errors && response.responseJSON.errors.email) {
+                        swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors.email[0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    } else if (response.responseJSON.errors) {
+                        const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                        swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors[firstErrorKey][0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                }
+            });
         });
-    </script>
+
+        $('#update-user-button').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'PUT',
+                url: '/user/' + $('#edit-id').val(),
+                data: $('#edit-user-form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        swal.fire({
+                            title: "Success!",
+                            text: response.success,
+                            icon: "success",
+                            button: "OK",
+                        }).then((value) => {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(response) {
+                    if (response.responseJSON.errors && response.responseJSON.errors.email) {
+                        swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors.email[0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    } else if (response.responseJSON.errors) {
+                        const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
+                        swal.fire({
+                            title: "Error!",
+                            text: response.responseJSON.errors[firstErrorKey][0],
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                }
+            });
+        });
+
+        // Initial binding of edit and delete buttons
+        bindEditAndDeleteButtons();
+
+        // Rebind edit and delete buttons on table draw event
+        table.on('draw', function() {
+            bindEditAndDeleteButtons();
+        });
+    });
+</script>
+
 @endpush

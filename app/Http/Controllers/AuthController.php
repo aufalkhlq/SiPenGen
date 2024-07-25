@@ -15,7 +15,36 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('auth.profile', ['user' => $user]);
+    }
 
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed|different:current_password',
+        ]);
+
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return response()->json([
+                'error' => 'Password lama tidak cocok.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        return response()->json([
+            'success' => 'Password berhasil diperbarui',
+            'redirect' => route('profile'),
+        ], Response::HTTP_OK);
+    }
+       
     public function login(Request $request)
     {
         $validate = $request->validate([

@@ -15,13 +15,13 @@
                 <div class="invoices-create-btn">
                     <form action="{{ route('jadwal.generate') }}" method="POST" id="confirm-text">
                         @csrf
-                        <button type="button" class="btn btn-primary" id="generate-button">Generate Schedule</button>
+                        <button type="button" class="btn btn-primary" id="generate-button">Generate Jadwal</button>
                     </form>
                 </div>
             </div>
             <div class="col-auto">
                 <div class="invoices-create-btn">
-                    <button type="button" class="btn btn-warning" id="check-conflicts-button">Check Conflicts</button>
+                    <button type="button" class="btn btn-warning" id="check-conflicts-button">Cek Konflik</button>
                 </div>
             </div>
             <div class="col-auto">
@@ -29,7 +29,7 @@
                     <form action="{{ route('jadwal.delete') }}" method="POST" id="delete-form">
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="btn btn-danger" id="delete-button">Delete All</button>
+                        <button type="button" class="btn btn-danger" id="delete-button">Hapus Semua</button>
                     </form>
                 </div>
             </div>
@@ -37,10 +37,18 @@
                 <div class="invoices-create-btn">
                     <form action="{{ route('jadwal.printpdf') }}" method="GET">
                         @csrf
-                        <button type="submit" class="btn btn-secondary" id="printpdf-button">Print PDF</button>
+                        <button type="submit" class="btn btn-secondary" id="printpdf-button">Cetak Excel</button>
                     </form>
                 </div>
             </div>
+            {{-- <div class="col-auto">
+                <div class="invoices-create-btn">
+                    <form action="{{ route('jadwal.generate-konflik') }}" method="POST" id="generate-without-conflicts-form">
+                        @csrf
+                        <button type="button" class="btn btn-primary" id="generate-without-conflicts-button">Generate Without Conflicts</button>
+                    </form>
+                </div>
+            </div> --}}
         </div>
 
         <div class="row mt-4">
@@ -48,14 +56,22 @@
                 <div class="col">
                     <form action="{{ route('jadwal') }}" method="GET">
                         <div class="form-group">
-                            <label for="kelas_id">Filter by Kelas:</label>
+                            <label for="kelas_id">Filter Kelas:</label>
                             <select id="kelas_id" name="kelas_id" class="form-control" onchange="this.form.submit()">
-                                <option value="">Select Kelas</option>
+                                <option value="">Semua Kelas</option>
                                 @foreach($kelas as $kelasItem)
                                 <option value="{{ $kelasItem->id }}" {{ $selectedKelas == $kelasItem->id ? 'selected' : '' }}>
                                     {{ $kelasItem->nama_kelas }}
                                 </option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="conflict_filter">Filter Konflik:</label>
+                            <select id="conflict_filter" name="conflict_filter" class="form-control" onchange="this.form.submit()">
+                                <option value="">Semua</option>
+                                <option value="conflict" {{ $selectedConflictFilter == 'conflict' ? 'selected' : '' }}>Dengan Konflik</option>
+                                <option value="no_conflict" {{ $selectedConflictFilter == 'no_conflict' ? 'selected' : '' }}>Tanpa Konflik</option>
                             </select>
                         </div>
                     </form>
@@ -64,7 +80,7 @@
             <div class="col-sm-12">
                 <div class="card card-table">
                     <div class="card-header">
-                        <h4 class="card-title">Generated Jadwal</h4>
+                        <h4 class="card-title">Hasil Generate Jadwal</h4>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -78,16 +94,19 @@
                                         <th>Jam</th>
                                         <th>Hari</th>
                                         <th>Kelas</th>
+                                        <th>Konflik</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($jadwals as $item)
                                     @php
                                         $hasConflict = false;
+                                        $conflictType = 'Tidak';
                                         foreach ($conflicts as $conflict) {
                                             if (($conflict['kelas1'] == $item->kelas->nama_kelas && $conflict['hari1'] == $item->hari->hari && $conflict['jam1'] == $item->jam->waktu) ||
                                                 ($conflict['kelas2'] == $item->kelas->nama_kelas && $conflict['hari2'] == $item->hari->hari && $conflict['jam2'] == $item->jam->waktu)) {
                                                 $hasConflict = true;
+                                                $conflictType = $conflict['type'];
                                                 break;
                                             }
                                         }
@@ -100,6 +119,7 @@
                                         <td>{{ $item->jam->waktu }}</td>
                                         <td>{{ $item->hari->hari }}</td>
                                         <td>{{ $item->kelas->nama_kelas }}</td>
+                                        <td>{{ $conflictType }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -136,6 +156,10 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="pagination-wrapper mt-3">
+                            <ul class="pagination justify-content-center" id="conflict-pagination">
+                            </ul>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
@@ -143,14 +167,13 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 @endsection
 
 @push('script')
 <script>
-      $(document).ready(function() {
+    $(document).ready(function() {
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
@@ -168,9 +191,9 @@
                 confirmButtonText: 'OK'
             });
         @endif
-    })
-    $('#generate-button').on('click', function(e) {
+    });
 
+    $('#generate-button').on('click', function(e) {
         e.preventDefault();
 
         Swal.fire({
@@ -253,31 +276,15 @@
             }
 
             const data = await response.json();
-            let content = '';
+            const conflicts = data.conflicts;
 
-            if (data.conflicts.length === 0) {
-                content = '<tr><td colspan="7">No conflicts found!</td></tr>';
+            if (conflicts.length === 0) {
+                $('#conflict-table-body').html('<tr><td colspan="7">No conflicts found!</td></tr>');
             } else {
-                data.conflicts.forEach(conflict => {
-                    content += `
-                        <tr>
-                            <td>${conflict.kelas1}</td>
-                            <td>${conflict.dosen1}</td>
-                            <td>${conflict.mata_kuliah1}</td>
-                            <td>${conflict.kelas2}</td>
-                            <td>${conflict.dosen2}</td>
-                            <td>${conflict.mata_kuliah2}</td>
-                            <td>${conflict.type}</td>
-                        </tr>
-                    `;
-                });
+                setupPagination(conflicts);
             }
 
-            $('#conflict-table-body').html(content);
             $('#conflictModal').modal('show');
-
-            // Highlight conflicts in the main table
-            highlightConflicts(data.conflicts);
 
         } catch (error) {
             Swal.fire({
@@ -289,21 +296,47 @@
         }
     }
 
-    function highlightConflicts(conflicts) {
-        const rows = document.querySelectorAll('.datatable tbody tr');
-        rows.forEach(row => {
-            const cells = row.children;
-            const kelas = cells[6].textContent;
-            const hari = cells[5].textContent;
-            const jam = cells[4].textContent;
+    function setupPagination(conflicts) {
+        const itemsPerPage = 10;
+        const totalPages = Math.ceil(conflicts.length / itemsPerPage);
+        const pagination = $('#conflict-pagination');
 
-            conflicts.forEach(conflict => {
-                if ((conflict.kelas1 === kelas && conflict.hari1 === hari && conflict.jam1 === jam) ||
-                    (conflict.kelas2 === kelas && conflict.hari2 === hari && conflict.jam2 === jam)) {
-                    row.classList.add('table-danger');
-                }
-            });
+        pagination.html('');
+
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`);
+        }
+
+        $('.page-link').on('click', function(e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            displayPage(conflicts, page, itemsPerPage);
         });
+
+        displayPage(conflicts, 1, itemsPerPage);
+    }
+
+    function displayPage(conflicts, page, itemsPerPage) {
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedConflicts = conflicts.slice(start, end);
+
+        let content = '';
+        paginatedConflicts.forEach(conflict => {
+            content += `
+                <tr>
+                    <td>${conflict.kelas1}</td>
+                    <td>${conflict.dosen1}</td>
+                    <td>${conflict.mata_kuliah1}</td>
+                    <td>${conflict.kelas2}</td>
+                    <td>${conflict.dosen2}</td>
+                    <td>${conflict.mata_kuliah2}</td>
+                    <td>${conflict.type}</td>
+                </tr>
+            `;
+        });
+
+        $('#conflict-table-body').html(content);
     }
 
     $('#delete-button').on('click', function(e) {
@@ -322,5 +355,6 @@
             }
         });
     });
+
 </script>
 @endpush

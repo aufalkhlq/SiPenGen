@@ -1,91 +1,117 @@
 @extends('components.app')
-@section('title', 'Jadwal')
+@section('title', 'Edit Jadwal')
 @section('content')
-@push('style')
-<script>document.getElementsByTagName("html")[0].className += " js";</script>
-<link href="{{ asset('assets/timetable/css/style.css') }}" rel="stylesheet">
-<style>
-    .right {
-        text-align: right;
-        margin-right: 20px
-    }
-</style>
-@endpush
-<!-- Add Cetak Excel button -->
-<div class="margin-top-lg right">
-    <a href="{{ route('jadwal.cetak') }}" class="btn btn-primary">Cetak Excel</a>
-</div>
+    @push('style')
+        <link rel="stylesheet" href="{{ asset('assets/plugins/dragula/css/dragula.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+        <style>
+            .timetable {
+                display: grid;
+                grid-template-columns: 120px repeat(5, 1fr);
+                grid-template-rows: 50px repeat(14, 1fr);
+                gap: 10px;
+            }
+            .timetable-header, .timetable-cell {
+                border: 1px solid #dee2e6;
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 5px;
+            }
+            .timetable-cell {
+                min-height: 140px;
+                background-color: #f8f9fa;
+                position: relative;
+                transition: background-color 0.3s, transform 0.3s;
+            }
+            .timetable-cell:hover {
+                background-color: #e2e6ea;
+                transform: scale(1.02);
+            }
+            .dragula-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+            .list-group-item {
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                cursor: move;
+                margin: 2px 0;
+                transition: background-color 0.3s, transform 0.3s;
+            }
+            .list-group-item:hover {
+                transform: scale(1.05);
+            }
+            /* Colors for different subjects */
+            .matkul-1 { background-color: #007bff; }
+            .matkul-2 { background-color: #28a745; }
+            .matkul-3 { background-color: #dc3545; }
+            .matkul-4 { background-color: #ffc107; }
+            .matkul-5 { background-color: #17a2b8; }
+            .matkul-6 { background-color: #6f42c1; }
+            .matkul-7 { background-color: #fd7e14; }
+            .matkul-8 { background-color: #343a40; }
+        </style>
+    @endpush
 
-<div class="cd-schedule cd-schedule--loading margin-top-lg margin-bottom-lg js-cd-schedule">
-    <div class="cd-schedule__timeline">
-        <ul>
-            <li><span>07:00</span></li>
-            <li><span>07:40</span></li>
-            <li><span>08:20</span></li>
-            <li><span>09:00</span></li>
-            <li><span>09:40</span></li>
-            <li><span>10:20</span></li>
-            <li><span>11:00</span></li>
-            <li><span>11:40</span></li>
-            <li><span>12:20</span></li>
-            <li><span>13:00</span></li>
-            <li><span>13:40</span></li>
-            <li><span>14:20</span></li>
-            <li><span>15:00</span></li>
-            <li><span>15:40</span></li>
-            <li><span>16:20</span></li>
-            <li><span>17:00</span></li>
-            <li><span>17:40</span></li>
-            <li><span>18:20</span></li>
-        </ul>
-    </div>
-
-    <div class="cd-schedule__events">
-        <ul>
-            @foreach ($eventsByDay as $day => $events)
-                <li class="cd-schedule__group">
-                    <div class="cd-schedule__top-info"><span>{{ $day }}</span></div>
-                    <ul>
-                        @foreach($events as $index => $event)
-                            @php
-                                // Assign a color class based on the index
-                                $colorClasses = ['event-1', 'event-2', 'event-3', 'event-4'];
-                                $colorClass = $colorClasses[$index % count($colorClasses)];
-                            @endphp
-                            <li class="cd-schedule__event">
-                                <a data-start="{{ $event['start'] }}" data-end="{{ $event['end'] }}" data-content="event-{{ strtolower(str_replace(' ', '-', $event['title'])) }}" data-event="{{ $colorClass }}" href="#0">
-                                    <em class="cd-schedule__name">{{ $event['title'] }}</em>
-                                </a>
-                            </li>
-                        @endforeach
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Jadwal Mahasiswa</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Jadwal Mahasiswa</li>
                     </ul>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-
-    <div class="cd-schedule-modal">
-        <header class="cd-schedule-modal__header">
-            <div class="cd-schedule-modal__content">
-                <span class="cd-schedule-modal__date"></span>
-                <h3 class="cd-schedule-modal__name"></h3>
+                </div>
+                <div class="col-auto">
+                    <div class="invoices-create-btn">
+                        <form action="{{ route('jadwal.cetak') }}" method="GET">
+                            @csrf
+                            <button type="submit" class="btn btn-primary" id="printpdf-button">Cetak Excel</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="cd-schedule-modal__header-bg"></div>
-        </header>
-        <div class="cd-schedule-modal__body">
-            <div class="cd-schedule-modal__event-info"></div>
-            <div class="cd-schedule-modal__body-bg"></div>
         </div>
-        <a href="#0" class="cd-schedule-modal__close text-replace">Close</a>
+
+        <div class="timetable mt-4">
+            <!-- Header Row for Days -->
+            <div class="timetable-header">Jam/Hari</div>
+            @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $hari)
+                <div class="timetable-header">{{ $hari }}</div>
+            @endforeach
+            <!-- Time Rows and Schedule Cells -->
+            @foreach ($jams as $jam)
+                <div class="timetable-header">{{ $jam->waktu }}</div>
+                @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as $day)
+                    <div class="timetable-cell" id="list-{{ $day }}-{{ $jam->id }}">
+                        <div class="dragula-container">
+                            @foreach ($jadwals->where('jam.id', $jam->id)->where('hari.hari', $day) as $jadwal)
+                                @php
+                                    $colorClass = 'matkul-' . (($jadwal->pengampu->matkul->id % 8) + 1);
+                                @endphp
+                                <div class="list-group-item {{ $colorClass }}" data-id="{{ $jadwal->id }}">
+                                    {{ $jadwal->pengampu->matkul->nama_matkul }} <br>
+                                    ({{ $jadwal->jam->waktu }})
+                                    - {{ $jadwal->ruangan->nama_ruangan }}
+                                    <br>
+                                    {{ $jadwal->pengampu->dosen->nama_dosen }}
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            @endforeach
+        </div>
     </div>
-
-    <div class="cd-schedule__cover-layer"></div>
-</div>
-
-
 @endsection
 
-@push('script')
-<script src="{{asset('assets/timetable/js/util.js')}}"></script>
-<script src="{{asset('assets/timetable/js/main.js')}}"></script>
-@endpush

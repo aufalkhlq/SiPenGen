@@ -14,7 +14,7 @@
                     <div class="invoices-create-btn">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#addDosenModal"
                             class="btn save-invoice-btn">
-                            Add Dosen
+                            Tambah Dosen
                         </button>
                     </div>
                 </div>
@@ -23,7 +23,7 @@
                     <div class="col-sm-12">
                         <div class="card card-table">
                             <div class="card-header">
-                                <h4 class="card-title">List of Dosen</h4>
+                                <h4 class="card-title">Daftar Dosen</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -34,7 +34,7 @@
                                                 <th class="text-center">NIP</th>
                                                 <th class="text-center">Prodi</th>
                                                 <th class="text-center">Status</th>
-                                                <th class="text-center">Actions</th>
+                                                <th class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -71,7 +71,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addDosenModalLabel">Add Dosen</h5>
+                                <h5 class="modal-title" id="addDosenModalLabel">Tambah Dosen</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
@@ -94,9 +94,10 @@
                                             <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
                                             <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer
                                             </option>
-                                            <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
+
                                         </select>
                                     </div>
+
                                 </form>
                             </div>
                             <div class="modal-footer">
@@ -130,14 +131,19 @@
                                             required>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="edit-password" class="form-label">Password Baru</label>
+                                        <input type="password" class="form-control" id="edit-password" name="edit-password"
+                                            placeholder="Kosongkan Jika tidak Merubah Password">
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="edit-prodi" class="form-label">Prodi</label>
                                         <select class="form-select" id="edit-prodi" name="edit-prodi" required>
                                             <option selected disabled>Select Prodi</option>
                                             <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
                                             <option value="D4 Teknologi Rekayasa Komputer">D4 Teknologi Rekayasa Komputer
                                             </option>
-                                            <option value="D3 Teknik Elektro">D3 Teknik Elektro</option>
                                     </div>
+
                                     <input type="hidden" id="edit-id" name="id">
                                 </form>
                             </div>
@@ -155,155 +161,152 @@
 @endsection
 
 @push('script')
-<script>
-    $(document).ready(function() {
-        function bindActions() {
-            $('.edit-btn').off('click').on('click', function(e) {
+    <script>
+        $(document).ready(function() {
+            function bindActions() {
+                $('.edit-btn').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    var id = $(this).data('id');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/dosen/' + id + '/edit',
+                        success: function(response) {
+                            $('#edit-nama_dosen').val(response.nama_dosen);
+                            $('#edit-nip').val(response.nip);
+                            $('#edit-prodi').val(response.prodi);
+                            $('#edit-id').val(response.id);
+                            $('#editDosenModal').modal('show');
+                        }
+                    });
+                });
+
+                $('.delete-btn').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    var id = $(this).data('id');
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "Once deleted, you will not be able to recover this data!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'No, cancel!',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: 'DELETE',
+                                url: '/dosen/' + id,
+                                data: {
+                                    '_token': $('input[name=_token]').val(),
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        Swal.fire({
+                                            title: "Deleted!",
+                                            text: response.success,
+                                            icon: "success",
+                                            button: "OK",
+                                        }).then((value) => {
+                                            location.reload();
+                                        });
+                                    }
+                                },
+                                error: function(response) {
+                                    if (response.responseJSON.error) {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: response.responseJSON.error,
+                                            icon: "error",
+                                            button: "OK",
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+
+            // Bind save dosen button
+            $('#save-dosen-button').off('click').on('click', function(e) {
                 e.preventDefault();
-                var id = $(this).data('id');
                 $.ajax({
-                    type: 'GET',
-                    url: '/dosen/' + id + '/edit',
+                    type: 'POST',
+                    url: '{{ route('dosen.store') }}',
+                    data: $('#add-dosen-form').serialize(),
                     success: function(response) {
-                        $('#edit-nama_dosen').val(response.nama_dosen);
-                        $('#edit-nip').val(response.nip);
-                        $('#edit-prodi').val(response.prodi);
-                        $('#edit-id').val(response.id);
-                        $('#editDosenModal').modal('show');
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Success!",
+                                text: response.success,
+                                icon: "success",
+                                button: "OK",
+                            }).then((value) => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        if (response.responseJSON.errors) {
+                            let errorMsg = '';
+                            $.each(response.responseJSON.errors, function(key, value) {
+                                errorMsg += value[0] + '\n';
+                            });
+                            Swal.fire({
+                                title: "Error!",
+                                text: errorMsg,
+                                icon: "error",
+                                button: "OK",
+                            });
+                        }
                     }
                 });
             });
 
-            $('.delete-btn').off('click').on('click', function(e) {
+            // Bind update dosen button
+            $('#update-dosen-button').off('click').on('click', function(e) {
                 e.preventDefault();
-                var id = $(this).data('id');
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this user!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel!',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: 'DELETE',
-                            url: '/dosen/' + id,
-                            data: {
-                                '_token': $('input[name=_token]').val(),
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    Swal.fire({
-                                        title: "Deleted!",
-                                        text: response.success,
-                                        icon: "success",
-                                        button: "OK",
-                                    }).then((value) => {
-                                        location.reload();
-                                    });
-                                }
-                            },
-                            error: function(response) {
-                                if (response.responseJSON.error) {
-                                    Swal.fire({
-                                        title: "Error!",
-                                        text: response.responseJSON.error,
-                                        icon: "error",
-                                        button: "OK",
-                                    });
-                                }
-                            }
-                        });
+                $.ajax({
+                    type: 'PUT',
+                    url: '/dosen/' + $('#edit-id').val(),
+                    data: $('#edit-dosen-form').serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Success!",
+                                text: response.success,
+                                icon: "success",
+                                button: "OK",
+                            }).then((value) => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        if (response.responseJSON.errors) {
+                            let errorMsg = '';
+                            $.each(response.responseJSON.errors, function(key, value) {
+                                errorMsg += value[0] + '\n';
+                            });
+                            Swal.fire({
+                                title: "Error!",
+                                text: errorMsg,
+                                icon: "error",
+                                button: "OK",
+                            });
+                        }
                     }
                 });
             });
-        }
 
-        // Bind save dosen button
-        $('#save-dosen-button').off('click').on('click', function(e) {
-            e.preventDefault();
-            if (!$('#nama_dosen').val() || !$('#nip').val()) {
-                Swal.fire({
-                    title: "Error!",
-                    text: "Nama Dosen and NIP are required.",
-                    icon: "error",
-                    button: "OK",
-                });
-                return;
-            }
-            if (!$('#prodi').val()) {
-                Swal.fire({
-                    title: "Error!",
-                    text: "Silahkan Pilih Salah Satu Prodi.",
-                    icon: "error",
-                    button: "OK",
-                });
-                return;
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: '{{ route('dosen.store') }}',
-                data: $('#add-dosen-form').serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: "Success!",
-                            text: response.success,
-                            icon: "success",
-                            button: "OK",
-                        }).then((value) => {
-                            location.reload();
-                        });
-                    }
-                },
+            // Re-bind actions on page change
+            $('.datatable').on('draw.dt', function() {
+                bindActions();
             });
-        });
 
-        // Bind update dosen button
-        $('#update-dosen-button').off('click').on('click', function(e) {
-            e.preventDefault();
-            $.ajax({
-                type: 'PUT',
-                url: '/dosen/' + $('#edit-id').val(),
-                data: $('#edit-dosen-form').serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: "Success!",
-                            text: response.success,
-                            icon: "success",
-                            button: "OK",
-                        }).then((value) => {
-                            location.reload();
-                        });
-                    }
-                },
-                error: function(response) {
-                    if (response.responseJSON.errors) {
-                        const firstErrorKey = Object.keys(response.responseJSON.errors)[0];
-                        Swal.fire({
-                            title: "Error!",
-                            text: response.responseJSON.errors[firstErrorKey][0],
-                            icon: "error",
-                            button: "OK",
-                        });
-                    }
-                }
-            });
-        });
-
-        // Re-bind actions on page change
-        $('.datatable').on('draw.dt', function() {
+            // Initial call to bind actions
             bindActions();
         });
-
-        // Initial call to bind actions
-        bindActions();
-    });
-</script>
+    </script>
 @endpush
-

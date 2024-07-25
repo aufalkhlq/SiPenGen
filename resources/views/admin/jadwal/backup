@@ -1,0 +1,193 @@
+@extends('components.app')
+@section('title', 'Edit Jadwal')
+@section('content')
+    @push('style')
+        <script>
+            document.getElementsByTagName("html")[0].className += " js";
+        </script>
+        <link href="{{ asset('assets/timetable/css/style.css') }}" rel="stylesheet">
+        <style>
+            .right {
+                text-align: right;
+                margin-right: 20px
+            }
+        </style>
+    @endpush
+    <!-- Add Cetak Excel button -->
+    <div class="margin-top-lg right">
+        <a href="{{ route('jadwal.cetak') }}" class="btn btn-primary">Cetak Excel</a>
+    </div>
+
+    <!-- Filter by Class -->
+    <div class="margin-top-lg">
+        <form id="filter-form" method="GET" action="{{ route('jadwal.edit') }}">
+            <select id="kelas-filter" name="kelas_id" class="form-control"
+                onchange="document.getElementById('filter-form').submit();">
+                <option value="">Semua Kelas</option>
+                @foreach ($kelasList as $kelas)
+                    <option value="{{ $kelas->id }}" {{ $kelas->id == $selectedKelas ? 'selected' : '' }}>
+                        {{ $kelas->nama_kelas }}</option>
+                @endforeach
+            </select>
+        </form>
+    </div>
+
+    <div class="cd-schedule cd-schedule--loading margin-top-lg margin-bottom-lg js-cd-schedule">
+        <div class="cd-schedule__timeline">
+            <ul>
+                <li><span>07:00</span></li>
+                <li><span>07:40</span></li>
+                <li><span>08:20</span></li>
+                <li><span>09:00</span></li>
+                <li><span>09:40</span></li>
+                <li><span>10:20</span></li>
+                <li><span>11:00</span></li>
+                <li><span>11:40</span></li>
+                <li><span>12:20</span></li>
+                <li><span>13:00</span></li>
+                <li><span>13:40</span></li>
+                <li><span>14:20</span></li>
+                <li><span>15:00</span></li>
+                <li><span>15:40</span></li>
+                <li><span>16:20</span></li>
+                <li><span>17:00</span></li>
+                <li><span>17:40</span></li>
+                <li><span>18:20</span></li>
+            </ul>
+        </div>
+
+        <div class="cd-schedule__events">
+            <ul>
+                @foreach ($eventsByDay as $day => $events)
+                    <li class="cd-schedule__group">
+                        <div class="cd-schedule__top-info"><span>{{ $day }}</span></div>
+                        <ul>
+                            @foreach ($events as $index => $event)
+                                @php
+                                    // Assign a color class based on the index
+                                    $colorClasses = ['event-1', 'event-2', 'event-3', 'event-4'];
+                                    $colorClass = $colorClasses[$index % count($colorClasses)];
+                                @endphp
+                                <li class="cd-schedule__event">
+                                    <a data-id="{{ $event['id'] }}" data-start="{{ $event['start'] }}"
+                                        data-end="{{ $event['end'] }}"
+                                        data-content="event-{{ strtolower(str_replace(' ', '-', $event['title'])) }}"
+                                        data-event="{{ $colorClass }}" href="#0">
+                                        <em class="cd-schedule__name">{{ $event['title'] }}</em>
+
+                                    </a>
+                                </li>
+                            @endforeach
+
+
+                        </ul>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+        <!-- Add data-start and data-end attributes with correct values -->
+
+
+        <div class="cd-schedule-modal">
+        </div>
+
+        <div class="cd-schedule__cover-layer"></div>
+    </div>
+
+
+@endsection
+
+@push('script')
+    <script src="{{ asset('assets/timetable/js/util.js') }}"></script>
+    <script src="{{ asset('assets/timetable/js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script>
+        interact('.cd-schedule__event').draggable({
+            inertia: true,
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ],
+            autoScroll: true,
+            listeners: {
+                move(event) {
+                    var target = event.target;
+                    var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                },
+                end(event) {
+                    var target = event.target;
+                    var id = target.getAttribute('data-id');
+                    var start = target.getAttribute('data-start');
+                    var end = target.getAttribute('data-end');
+                    var title = target.querySelector('.cd-schedule__name').innerText;
+
+                    if (start && end) {
+                        var newStart = calculateNewTime(start, parseFloat(target.getAttribute('data-y','data-x')));
+                        var newEnd = calculateNewTime(end, parseFloat(target.getAttribute('data-y','data-x')));
+
+                        target.setAttribute('data-start', newStart);
+                        target.setAttribute('data-end', newEnd);
+
+                        saveEventChanges(id, title, newStart, newEnd);
+                    } else {
+                        console.error("Invalid start or end time:", start, end);
+                    }
+                }
+            }
+        });
+
+        function calculateNewTime(time, gridPosition) {
+            var timeParts = time.split(':');
+            var hours = parseInt(timeParts[0], 10);
+            var minutes = parseInt(timeParts[1], 10);
+
+            var gridSize = 40; // Adjust this value to your grid size
+            var deltaMinutes = Math.round(gridPosition / gridSize) * 60 / gridSize;
+
+            minutes += deltaMinutes;
+
+            while (minutes >= 60) {
+                minutes -= 60;
+                hours += 1;
+            }
+
+            while (minutes < 0) {
+                minutes += 60;
+                hours -= 1;
+            }
+
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        function saveEventChanges(id, title, start, end) {
+            $.ajax({
+                url: '{{ route('jadwal.update') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    title: title,
+                    start: start,
+                    end: end
+                },
+                success: function(response) {
+                    // Handle success
+                    console.log(response.message);
+                },
+                error: function(response) {
+                    // Handle error
+                    console.error(response.responseText);
+                }
+            });
+        }
+        </script>
+
+@endpush

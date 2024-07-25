@@ -16,7 +16,7 @@ class MatkulController extends Controller
     {
         $request->validate([
             'kode_matkul' => 'required',
-            'nama_matkul' => 'required',
+            'nama_matkul' => 'required  ',
             'sks' => 'required'
         ]);
 
@@ -36,13 +36,14 @@ class MatkulController extends Controller
 
     public function update(Request $request, $id)
     {
+        $matkul = Matkul::find($id);
         $request->validate([
             'kode_matkul' => 'required',
             'nama_matkul' => 'required',
             'sks' => 'required'
         ]);
 
-        $matkul = Matkul::find($id);
+
         $matkul->update($request->all());
 
         return response()->json([

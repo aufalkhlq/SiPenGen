@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 
 class DosenController extends Controller
 {
@@ -30,23 +30,24 @@ class DosenController extends Controller
      */
     public function store(Request $request)
     {
-
         $request->validate([
             'nama_dosen' => 'required',
-            'nip' => 'required|numeric',
+            'nip' => 'required|numeric|unique:dosen',
             'prodi' => 'required',
         ]);
+
         //create new dosen
         $dosen = Dosen::create([
             'nama_dosen' => $request->nama_dosen,
             'nip' => $request->nip,
             'prodi' => $request->prodi,
+            'password' => Hash::make('defaultpassword'), // set default password
         ]);
+
         return response()->json([
             'success' => 'Dosen created successfully',
             'redirect' => route('dosen'),
         ]);
-
     }
 
     /**
@@ -54,7 +55,6 @@ class DosenController extends Controller
      */
     public function show(Dosen $dosen)
     {
-        $dosen = Dosen::find($dosen);
         return response()->json($dosen);
     }
 
@@ -75,7 +75,7 @@ class DosenController extends Controller
 
         $request->validate([
             'edit-nama_dosen' => 'required',
-            'edit-nip' => 'required|numeric',
+            'edit-nip' => 'required|numeric|unique:dosen,nip,' . $dosen->id,
             'edit-prodi' => 'required',
         ]);
 
@@ -83,11 +83,15 @@ class DosenController extends Controller
         $dosen->nip = $request->input('edit-nip');
         $dosen->prodi = $request->input('edit-prodi');
 
+        if ($request->filled('edit-password')) {
+            $dosen->password = Hash::make($request->input('edit-password'));
+        }
+
         $dosen->save();
 
         if ($dosen) {
             return response()->json([
-                'success' => 'dosen edited successfully',
+                'success' => 'Dosen edited successfully',
                 'redirect' => route('dosen'),
             ]);
         } else {
@@ -104,6 +108,7 @@ class DosenController extends Controller
     {
         $dosen = Dosen::find($id);
         $dosen->delete();
+
         return response()->json([
             'success' => 'Dosen deleted successfully',
             'redirect' => route('dosen'),

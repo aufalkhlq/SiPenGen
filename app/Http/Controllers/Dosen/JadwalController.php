@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Jadwal;
 use App\Models\Jam;
+use App\Models\Kelas;
+use App\Models\Hari;
 use App\Models\Pengampu;
 use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -32,53 +34,28 @@ class JadwalController extends Controller
 
     public function index(Request $request)
     {
-        $jams = Jam::all();
-        $user = Auth::guard('dosen')->user();
-        $dosenId = $user->id;
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
-        $eventsByDay = [];
+        // Initialize the query to load related data
+        $jadwals = Jadwal::with(['pengampu.dosen', 'pengampu.matkul', 'ruangan', 'jam', 'hari', 'kelas']);
 
-        foreach ($days as $day) {
-            $eventsByDay[$day] = [];
-            $pengampus = Pengampu::where('dosen_id', $dosenId)->get();
-
-            foreach ($pengampus as $pengampu) {
-                $jadwals = Jadwal::where('pengampu_id', $pengampu->id)
-                            ->whereHas('hari', function($query) use ($day) {
-                                $query->where('hari', $day);
-                            })
-                            ->orderBy('jam_id')
-                            ->get();
-
-                foreach ($jadwals as $jadwal) {
-                    try {
-                        // Mengonversi waktu mulai dan waktu selesai
-                        $convertedTimes = $this->convertTimeRange($jadwal->jam->waktu);
-                        $lastEvent = end($eventsByDay[$day]);
-
-                        if ($lastEvent &&
-                            $lastEvent['end'] == $convertedTimes['start'] &&
-                            $lastEvent['title'] == $pengampu->matkul->nama_matkul &&
-                            $lastEvent['ruangan'] == $jadwal->ruangan->nama_ruangan
-                        ) {
-                            // Update end time of the last event if they are consecutive
-                            $eventsByDay[$day][key($eventsByDay[$day])]['end'] = $convertedTimes['end'];
-                        } else {
-                            $eventsByDay[$day][] = [
-                                'title' => $pengampu->matkul->nama_matkul,
-                                'start' => $convertedTimes['start'],
-                                'end' => $convertedTimes['end'],
-                                'ruangan' => $jadwal->ruangan->nama_ruangan
-                            ];
-                        }
-                    } catch (\Exception $e) {
-                        \Log::error("Error converting time range: " . $e->getMessage());
-                    }
-                }
-            }
+        // Handling dosen view
+        if (Auth::guard('dosen')->check()) {
+            $userDosenId = Auth::guard('dosen')->user()->id;
+            $jadwals = $jadwals->whereHas('pengampu', function ($query) use ($userDosenId) {
+                $query->where('dosen_id', $userDosenId);
+            });
         }
 
-        return view('dosen.jadwal.index', compact('eventsByDay', 'jams'));
+        $jadwals = $jadwals->get();
+        $kelas = Kelas::all();
+        $jams = Jam::all();
+        $haris = Hari::all();
+
+        return view('dosen.jadwal.index', [
+            'jadwals' => $jadwals,
+            'kelas' => $kelas,
+            'jams' => $jams,
+            'haris' => $haris
+        ]);
     }
 
     public function printPDF(Request $request)
@@ -176,7 +153,7 @@ class JadwalController extends Controller
         $sheet->getColumnDimension('C')->setWidth(15);
         $sheet->getColumnDimension('D')->setWidth(15);
         $sheet->getColumnDimension('E')->setWidth(30);
-        $sheet->getColumnDimension('F')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(30);
 
         // Set row heights
         for ($i = 1; $i <= $row; $i++) {

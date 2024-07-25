@@ -12,16 +12,17 @@ ini_set('max_execution_time', 2000); // Set the maximum execution time to 5 minu
 
 class GeneticAlgorithm
 {
+    // Inisialisasi Populasi
     public function inisialisasiPopulasi($jumlahIndividu, $jumlahJam, $jumlahHari, $jumlahRuangan) {
         Log::info('Inisialisasi Populasi');
         $populasi = [];
 
-        $pengampus = Pengampu::with('matkul', 'kelas')->get(); // Menambahkan kelas dalam relasi
+        $pengampus = Pengampu::with('matkul', 'kelas')->get();
 
         for ($i = 0; $i < $jumlahIndividu; $i++) {
             Log::info("Inisialisasi Individu", ['individu' => $i]);
             $individu = [];
-            $jadwalMap = []; // Untuk cek konflik
+            $jadwalMap = [];
 
             foreach ($pengampus as $pengampu) {
                 $kelas_id = $pengampu->kelas_id;
@@ -29,7 +30,7 @@ class GeneticAlgorithm
                 $matkul = $pengampu->matkul;
                 $sks = $matkul->sks;
 
-                for ($s = 0; $s < $sks * 2; $s++) { // Setiap SKS adalah 2 jam
+                for ($s = 0; $s < $sks; $s++) {
                     Log::info("Inisialisasi SKS Loop", ['loop' => $s]);
                     $attempts = 0;
                     $maxAttempts = 100; // Batasi jumlah percobaan
@@ -39,7 +40,7 @@ class GeneticAlgorithm
                     } while (!$jadwal && $attempts < $maxAttempts);
 
                     if ($jadwal) {
-                        $individu[] = $jadwal;
+                        $individu = array_merge($individu, $jadwal);
                     } else {
                         Log::warning("Gagal inisialisasi jadwal setelah $maxAttempts percobaan untuk kelas " . $kelas_id . " matkul " . $matkul->id . " sks loop $s");
                     }
@@ -52,9 +53,10 @@ class GeneticAlgorithm
         return $populasi;
     }
 
+    // Membuat Jadwal
     private function buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $kelas_id, $pengampu_id, &$jadwalMap) {
         for ($hari_id = 1; $hari_id <= $jumlahHari; $hari_id++) {
-            for ($jam_id = 1; $jam_id <= $jumlahJam - 1; $jam_id++) { // Perubahan pada loop jam
+            for ($jam_id = 1; $jam_id <= $jumlahJam - 1; $jam_id++) {
                 for ($ruangan_id = 1; $ruangan_id <= $jumlahRuangan; $ruangan_id++) {
                     $kelasKey = $kelas_id . '-' . $jam_id . '-' . $hari_id;
                     $kelasKeyNext = $kelas_id . '-' . ($jam_id + 1) . '-' . $hari_id;
@@ -65,18 +67,29 @@ class GeneticAlgorithm
 
                     if (!isset($jadwalMap[$kelasKey]) && !isset($jadwalMap[$ruanganKey]) && !isset($jadwalMap[$pengampuKey]) &&
                         !isset($jadwalMap[$kelasKeyNext]) && !isset($jadwalMap[$ruanganKeyNext]) && !isset($jadwalMap[$pengampuKeyNext])) {
+
                         $jadwalMap[$kelasKey] = true;
                         $jadwalMap[$ruanganKey] = true;
                         $jadwalMap[$pengampuKey] = true;
                         $jadwalMap[$kelasKeyNext] = true;
                         $jadwalMap[$ruanganKeyNext] = true;
                         $jadwalMap[$pengampuKeyNext] = true;
+
                         return [
-                            'kelas_id' => $kelas_id,
-                            'pengampu_id' => $pengampu_id,
-                            'ruangan_id' => $ruangan_id,
-                            'jam_id' => $jam_id,
-                            'hari_id' => $hari_id,
+                            [
+                                'kelas_id' => $kelas_id,
+                                'pengampu_id' => $pengampu_id,
+                                'ruangan_id' => $ruangan_id,
+                                'jam_id' => $jam_id,
+                                'hari_id' => $hari_id,
+                            ],
+                            [
+                                'kelas_id' => $kelas_id,
+                                'pengampu_id' => $pengampu_id,
+                                'ruangan_id' => $ruangan_id,
+                                'jam_id' => $jam_id + 1,
+                                'hari_id' => $hari_id,
+                            ]
                         ];
                     }
                 }
@@ -85,6 +98,7 @@ class GeneticAlgorithm
         return null;
     }
 
+    // Evaluasi Fitness
     public function evaluasiFitness($individu) {
         Log::info('Evaluasi Fitness Individu');
         $fitness = 0;
@@ -100,7 +114,23 @@ class GeneticAlgorithm
             // Cek konflik untuk setiap entri
             if (isset($jadwalMap[$kelasKey]) || isset($jadwalMap[$ruanganKey]) || isset($jadwalMap[$pengampuKey])) {
                 $conflicts++;
+                Log::info('Konflik ditemukan', ['kelasKey' => $kelasKey, 'ruanganKey' => $ruanganKey, 'pengampuKey' => $pengampuKey]);
             }
+
+            // Cek waktu istirahat yang tidak mencukupi (misalnya 1 jam istirahat setelah 3 jam berturut-turut)
+            if ($jadwal['jam_id'] == 4 || $jadwal['jam_id'] == 12) {
+                $conflicts++;
+                Log::info('Konflik waktu istirahat', ['jam_id' => $jadwal['jam_id']]);
+            }
+
+            // Cek waktu salat Jumat atau jeda makan siang (misalnya dari jam 12 sampai jam 13 tidak ada jadwal pada hari Jumat)
+            if ($jadwal['hari_id'] == 5 && ($jadwal['jam_id'] == 8 || $jadwal['jam_id'] == 9)) {
+                $conflicts++;
+                Log::info('Konflik waktu salat Jumat atau jeda makan siang', ['hari_id' => $jadwal['hari_id'], 'jam_id' => $jadwal['jam_id']]);
+            }
+
+            // Preferensi dosen (misalnya dosen tidak tersedia pada jam atau hari tertentu)
+            // Logika untuk preferensi dosen dapat ditambahkan di sini
 
             $jadwalMap[$kelasKey] = true;
             $jadwalMap[$ruanganKey] = true;
@@ -112,6 +142,7 @@ class GeneticAlgorithm
         return $fitness;
     }
 
+    // Evaluasi Populasi
     public function evaluasiPopulasi($populasi) {
         Log::info('Evaluasi Fitness Populasi');
         $fitnessPopulasi = [];
@@ -123,6 +154,7 @@ class GeneticAlgorithm
         return $fitnessPopulasi;
     }
 
+    // Seleksi
     public function seleksi($populasi, $fitnessPopulasi) {
         Log::info('Seleksi Populasi');
         array_multisort($fitnessPopulasi, SORT_DESC, $populasi);
@@ -130,6 +162,7 @@ class GeneticAlgorithm
         return array_slice($populasi, 0, $jumlahTerpilih);
     }
 
+    // Crossover
     public function crossover($individu1, $individu2) {
         Log::info('Crossover');
         $titikPotong = rand(1, count($individu1) - 1);
@@ -138,6 +171,7 @@ class GeneticAlgorithm
         return [$anak1, $anak2];
     }
 
+    // Crossover Populasi
     public function crossoverPopulasi($populasi) {
         Log::info('Crossover Populasi');
         $populasiBaru = [];
@@ -149,6 +183,7 @@ class GeneticAlgorithm
         return $populasiBaru;
     }
 
+    // Mutasi
     public function mutasi($individu, $jumlahJam, $jumlahHari, $jumlahRuangan) {
         Log::info('Mutasi Individu');
         $probabilitasMutasi = 0.1;
@@ -171,13 +206,14 @@ class GeneticAlgorithm
 
                 $jadwalBaru = $this->buatJadwal($jumlahHari, $jumlahJam, $jumlahRuangan, $kelas_id, $pengampu_id, $jadwalMap);
                 if ($jadwalBaru) {
-                    $jadwal = $jadwalBaru;
+                    $jadwal = $jadwalBaru[0];
                 }
             }
         }
         return $individu;
     }
 
+    // Mutasi Populasi
     public function mutasiPopulasi($populasi, $jumlahJam, $jumlahHari, $jumlahRuangan) {
         Log::info('Mutasi Populasi');
         foreach ($populasi as &$individu) {
@@ -186,6 +222,7 @@ class GeneticAlgorithm
         return $populasi;
     }
 
+    // Algoritma Genetik Utama
     public function algoritmaGenetik($jumlahGenerasi, $jumlahIndividu, $jumlahJam, $jumlahHari, $jumlahRuangan) {
         Log::info('Mulai Algoritma Genetik');
         $populasi = $this->inisialisasiPopulasi($jumlahIndividu, $jumlahJam, $jumlahHari, $jumlahRuangan);
@@ -199,7 +236,6 @@ class GeneticAlgorithm
             if (!empty($populasiBaru)) {
                 $populasi = $this->mutasiPopulasi($populasiBaru, $jumlahJam, $jumlahHari, $jumlahRuangan);
             } else {
-                // Jika populasi baru kosong, kembali ke populasi terpilih
                 $populasi = $populasiTerpilih;
             }
         }
@@ -210,7 +246,6 @@ class GeneticAlgorithm
         Log::info('Algoritma Genetik Selesai');
         $jadwalTerbaik = !empty($populasi) ? $populasi[0] : [];
 
-        // Simpan nilai fitness ke database
         if (!empty($jadwalTerbaik)) {
             $fitness = $this->evaluasiFitness($jadwalTerbaik);
             foreach ($jadwalTerbaik as &$jadwal) {
@@ -218,9 +253,17 @@ class GeneticAlgorithm
             }
         }
 
+        // Memastikan tidak ada konflik sebelum menyimpan
+        if ($this->evaluasiFitness($jadwalTerbaik) == 1) {
+            $this->simpanJadwal($jadwalTerbaik);
+        } else {
+            Log::warning('Tidak ada jadwal yang valid untuk disimpan karena masih ada konflik.');
+        }
+
         return $jadwalTerbaik;
     }
 
+    // Simpan Jadwal
     public function simpanJadwal($jadwalTerbaik) {
         Log::info('Simpan Jadwal Terbaik');
         foreach ($jadwalTerbaik as $jadwal) {
@@ -228,4 +271,3 @@ class GeneticAlgorithm
         }
     }
 }
-
