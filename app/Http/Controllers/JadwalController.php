@@ -135,8 +135,8 @@ class JadwalController extends Controller
     public function generateSchedule($returnOnly = false)
     {
         try {
-            $jumlahGenerasi = 5000;
-            $jumlahIndividu = 50;
+            $jumlahGenerasi = 1000;
+            $jumlahIndividu = 30;
             $jumlahJam = Jam::count();
             $jumlahHari = Hari::count();
             $jumlahRuangan = Ruangan::count();
@@ -151,7 +151,7 @@ class JadwalController extends Controller
                 $jumlahHari,
                 $jumlahRuangan,
                 $jumlahKelas,
-                $jumlahSksPerKelas // Pastikan semua argumen diberikan
+                $jumlahSksPerKelas
             );
 
             if ($returnOnly) {

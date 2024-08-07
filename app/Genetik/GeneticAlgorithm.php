@@ -9,7 +9,7 @@ use App\Models\Hari;
 use App\Models\Jam;
 use Illuminate\Support\Facades\Log;
 
-ini_set('max_execution_time', 2000); // Set the maximum execution time to 5 minutes
+ini_set('max_execution_time', 2000);
 
 class GeneticAlgorithm
 {
@@ -39,7 +39,7 @@ class GeneticAlgorithm
                 }
 
                 // Calculate the total number of schedules needed for this matkul
-                $totalJadwal = ceil($sks * 2); // 1 SKS = 2 hours, divided by 2 hours per schedule slot
+                $totalJadwal = ceil($sks * 2); 
 
                 for ($s = 0; $s < $totalJadwal; $s++) {
                     Log::info("Inisialisasi SKS Loop", ['loop' => $s]);
@@ -237,6 +237,13 @@ class GeneticAlgorithm
         $jadwalTerbaik = $populasi[$indexTerbaik];
 
         Log::info('Algoritma Genetika Selesai');
+        if (!empty($jadwalTerbaik)) {
+            $fitness = $this->evaluasiFitness($jadwalTerbaik, $jumlahHari);
+            foreach ($jadwalTerbaik as &$jadwal) {
+                $jadwal['fitness'] = $fitness;
+            }
+        }
+
         return $jadwalTerbaik;
     }
 

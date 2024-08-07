@@ -44,7 +44,7 @@ class AuthController extends Controller
             'redirect' => route('profile'),
         ], Response::HTTP_OK);
     }
-       
+
     public function login(Request $request)
     {
         $validate = $request->validate([
@@ -92,13 +92,11 @@ class AuthController extends Controller
                 ]);
             }
         } elseif ($user instanceof Mahasiswa) {
-            \Log::info('Redirecting mahasiswa to dashboard: ' . $user->name);
             return response()->json([
                 'success' => 'Welcome to the mahasiswa dashboard',
                 'redirect' => route('mahasiswa.dashboard'),
             ]);
         } elseif ($user instanceof Dosen) {
-            \Log::info('Redirecting dosen to dashboard: ' . $user->name);
             return response()->json([
                 'success' => 'Welcome to the dosen dashboard',
                 'redirect' => route('dosen.dashboard'),
